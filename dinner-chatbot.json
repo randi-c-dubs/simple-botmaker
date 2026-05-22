@@ -1,0 +1,79 @@
+{
+  "nodes": {
+    "root": {
+      "id": "root",
+      "title": "Welcome Greeting",
+      "text": "Hi I'm the Dinner Planner Chatbot.",
+      "type": "message",
+      "branches": [
+        {
+          "text": "Next",
+          "targetId": "node_w5v6yovt0",
+          "isNext": true,
+          "isEnd": false
+        }
+      ]
+    },
+    "node_w5v6yovt0": {
+      "id": "node_w5v6yovt0",
+      "title": "Next Path",
+      "text": "Would you like help planning dinner?",
+      "type": "message",
+      "branches": [
+        {
+          "text": "Yes",
+          "targetId": "node_slm3vw8t2",
+          "isNext": false,
+          "isEnd": false
+        },
+        {
+          "text": "No",
+          "targetId": "node_5hdriuy5q",
+          "isNext": false,
+          "isEnd": false
+        }
+      ]
+    },
+    "node_slm3vw8t2": {
+      "id": "node_slm3vw8t2",
+      "title": "Response: \"Yes\"",
+      "text": "Great! How much time do you have to prepare?",
+      "type": "message",
+      "branches": [
+        {
+          "text": "0-60 minutes",
+          "targetId": "node_z6jtbg1il",
+          "isNext": false,
+          "isEnd": false
+        },
+        {
+          "text": "61+ minutes",
+          "targetId": "node_ogcogi4t4",
+          "isNext": false,
+          "isEnd": false
+        }
+      ]
+    },
+    "node_5hdriuy5q": {
+      "id": "node_5hdriuy5q",
+      "title": "Response: \"No\"",
+      "text": "Ok well that's all I can do so have a great day!",
+      "type": "end",
+      "branches": []
+    },
+    "node_z6jtbg1il": {
+      "id": "node_z6jtbg1il",
+      "title": "Response: \"0-60 minutes\"",
+      "text": "Wow you're in a rush. Try one of these.\nOpen https://cooking.nytimes.com/topics/easy-weeknight",
+      "type": "end",
+      "branches": []
+    },
+    "node_ogcogi4t4": {
+      "id": "node_ogcogi4t4",
+      "title": "Response: \"61+ minutes\"",
+      "text": "Looks like you have time for a slow cooker recipe. Try this.\nOpen https://www.delish.com/cooking/recipe-ideas/g2882/summer-slow-cooker",
+      "type": "end",
+      "branches": []
+    }
+  }
+}

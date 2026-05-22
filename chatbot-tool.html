@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day of AI - Chatbot Builder</title>
+    <link rel="icon" type="image/x-icon" href="./images/favicon.ico">
+    <!-- Tailwind CSS for utility foundation, paired with specific brand-themed overrides -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brandPurple: '#BD519D',
+                        brandBlue: '#4271B7',
+                        brandGreen: '#1A9A48',
+                        bgLight: '#F9F6F3'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* High-touch custom CSS for chatbot preview rendering */
+        .msg-bubble {
+            max-width: 80%;
+            border-radius: 1.25rem;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes popIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        /* Scrollbar customization for visual canvas scrolling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8;
+        }
+    </style>
+</head>
+<body class="bg-bgLight text-slate-800 min-h-screen flex flex-col font-sans">
+
+    <!-- BRANDED HEADER -->
+    <header class="bg-white border-b-2 border-slate-100 px-6 py-4 flex flex-col lg:flex-row justify-between items-center gap-4 sticky top-0 z-30 shadow-sm">
+        <div class="flex items-center gap-3">
+            <div class="flex gap-1 items-end"><a href="https://dayofai.org"><img src="./images/doai_logo.png" class="w-[51px] alt="Day of AI"></a></div>
+            <div>
+                <span class="text-xl font-semibold text-brandBlue tracking-widest uppercase">Chatbot<br/>Playground</span>
+            </div>
+        </div>
+        <!-- Import / Export Controls & Tab Controls -->
+        <div class="flex flex-wrap items-center gap-4">
+	<button onclick="startTutorial()" class="px-4 py-2 border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-600 font-bold text-sm rounded-full transition-all flex items-center gap-2">
+        Tutorial
+    </button>
+            <!-- Save/Load Actions (Hidden input handles file parsing) -->
+            <div class="flex gap-2">
+                <input type="file" id="importFileInput" accept=".json" class="hidden" onchange="importChatbot(event)">
+                <button onclick="triggerImport()" class="px-4 py-2 border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-600 font-bold text-sm rounded-full transition-all flex items-center gap-2">
+                    Import File
+                </button>
+                <button onclick="exportChatbot()" class="px-4 py-2 border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-600 font-bold text-sm rounded-full transition-all flex items-center gap-2">
+                    Export File
+                </button>
+            </div>
+            
+            <!-- Tab controls with allowed emojis -->
+            <div class="flex bg-slate-100 p-1.5 rounded-full border border-slate-200">
+                <button id="buildTabBtn" onclick="switchTab('build')" class="px-5 py-2 text-sm font-bold rounded-full transition-all duration-200 bg-brandPurple text-white shadow-sm">
+                    🛠️ Build Mode
+                </button>
+                <button id="testTabBtn" onclick="switchTab('test')" class="px-5 py-2 text-sm font-bold rounded-full transition-all duration-200 text-slate-600 hover:text-slate-900">
+                    💬 Test Mode
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN INTERACTIVE CONTAINER -->
+    <main class="flex-1 p-4 md:p-8 max-w-7xl w-full mx-auto">
+        
+        <!-- ================= BUILD TAB PANEL ================= -->
+        <div id="buildPanel" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Primary Form Editor Block -->
+            <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-sm transition-all">
+                <div class="flex justify-between items-center border-b border-slate-100 pb-4 mb-6">
+                    <div class="flex items-center gap-3">
+                        <button id="backBtn" onclick="goBack()" class="hidden px-3 py-1.5 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">
+                            Back
+                        </button>
+                        <span id="activeNodeBadge" class="px-3 py-1 bg-blue-50 text-brandBlue text-xs font-bold rounded-full uppercase tracking-wider">
+                            Active Block: Welcome Greeting
+                        </span>
+                    </div>
+                    <span class="text-xs text-slate-400 font-semibold" id="nodeIdLabel">ID: root</span>
+                </div>
+
+                <!-- Interactive Card Body Content -->
+                <div id="editorWorkspace">
+                    <!-- Loaded dynamically via state -->
+                </div>
+            </div>
+
+            <!-- Auto-Updating Visual Flowchart Diagram Side Panel -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col h-[600px]">
+                <div class="border-b border-slate-100 pb-4 mb-4">
+                    <h2 class="font-bold text-slate-800 flex items-center gap-2">
+                        Flowchart Map
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1">This updates automatically. Click any block in the flowchart to jump directly to editing its logic.</p>
+                </div>
+                
+                <!-- Dynamic SVG Flowchart Diagram Canvas -->
+                <div id="flowMapList" class="flex-1 relative overflow-hidden">
+                    <!-- Dynamic chart builds here -->
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ================= TEST TAB PANEL (CHAT SIMULATOR) ================= -->
+        <div id="testPanel" class="hidden max-w-xl mx-auto">
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-md overflow-hidden flex flex-col h-[600px]">
+                
+                <!-- Simulated App Header -->
+                <div class="bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-brandBlue flex items-center justify-center text-white font-black shadow-sm">
+                            🤖
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-900 leading-tight">My Custom Bot</h3>
+                            <span class="flex items-center gap-1.5 text-xs text-emerald-600 font-semibold">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Online
+                            </span>
+                        </div>
+                    </div>
+                    <button onclick="resetSimulation()" class="text-xs font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 px-3 py-2 rounded-lg transition-colors">
+                        Restart Chat
+                    </button>
+                </div>
+
+                <!-- Chat Dialog Area -->
+                <div id="chatDisplay" class="flex-1 p-6 overflow-y-auto bg-slate-50/50 flex flex-col gap-4">
+                    <!-- Messages render here -->
+                </div>
+
+                <!-- Dynamic User Inputs Block -->
+                <div class="p-4 bg-white border-t border-slate-100">
+                    <div id="chatChoiceControls" class="flex flex-wrap gap-2 justify-center">
+                        <!-- Path decision buttons generated here -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- CUSTOM APP NOTIFICATION COMPONENT -->
+    <div id="customNotification" class="fixed bottom-4 right-4 bg-slate-900 text-white text-sm font-semibold px-4 py-3 rounded-xl shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center gap-2">
+        <span id="notifIcon">🛑</span>
+        <span id="notifText">Notification Message</span>
+    </div>
+
+<div id="tourModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
+    <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300 flex flex-col min-h-[400px]">
+        
+        <div class="w-full bg-slate-100 h-2 flex">
+            <div id="tourProgress" class="bg-brandPurple h-full transition-all duration-300" style="width: 20%"></div>
+        </div>
+
+        <div class="p-6 md:p-8 flex-1 flex flex-col justify-between">
+            <div id="tourContent" class="space-y-4">
+                </div>
+
+            <div class="mt-8 pt-4 border-t border-slate-100 flex items-center justify-between">
+                <button onclick="closeTutorial()" class="text-xs font-bold text-slate-400 hover:text-slate-600 tracking-wider uppercase transition-colors">
+                    Skip Tour
+                </button>
+                <div class="flex gap-2">
+                    <button id="tourPrevBtn" onclick="prevTutorialStep()" class="px-4 py-2 border border-slate-200 text-slate-600 font-bold text-sm rounded-full hover:bg-slate-50 transition-all disabled:opacity-40">
+                        Back
+                    </button>
+                    <button id="tourNextBtn" onclick="nextTutorialStep()" class="px-5 py-2 bg-brandBlue hover:bg-opacity-90 text-white font-bold text-sm rounded-full transition-all shadow-md">
+                        Next Step
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- MAIN APP STATE & LOGIC PROCESSOR -->
+    <script>
+        // --- CENTRAL STATE OBJECT ---
+        let appState = {
+            activeNodeId: "root",
+            historyStack: [],
+            nodes: {
+                "root": {
+                    id: "root",
+                    title: "Welcome Greeting",
+                    text: "", // Clear initial text to show Hint Placeholder
+                    type: "message",
+                    branches: []
+                }
+            }
+        };
+
+        // --- TAB SWITCHER LOGIC ---
+        function switchTab(tab) {
+            const buildBtn = document.getElementById('buildTabBtn');
+            const testBtn = document.getElementById('testTabBtn');
+            const buildPanel = document.getElementById('buildPanel');
+            const testPanel = document.getElementById('testPanel');
+
+            if (tab === 'build') {
+                buildBtn.className = "px-5 py-2 text-sm font-bold rounded-full transition-all duration-200 bg-brandPurple text-white shadow-sm";
+                testBtn.className = "px-5 py-2 text-sm font-bold rounded-full transition-all duration-200 text-slate-600 hover:text-slate-900";
+                
+                buildPanel.classList.remove('hidden');
+                testPanel.classList.add('hidden');
+                
+                renderEditor();
+                renderFlowMap();
+            } else {
+                buildBtn.className = "px-5 py-2 text-sm font-bold rounded-full transition-all duration-200 text-slate-600 hover:text-slate-900";
+                testBtn.className = "px-5 py-2 text-sm font-bold rounded-full transition-all duration-200 bg-brandGreen text-white shadow-sm";
+                
+                buildPanel.classList.add('hidden');
+                testPanel.classList.remove('hidden');
+                
+                resetSimulation();
+            }
+        }
+
+        // --- NOTIFICATION BANNER DISMISSAL ---
+        function dismissInstructions() {
+            document.getElementById('instructionBanner').classList.add('hidden');
+        }
+
+        // --- APP ALERT ENGINE ---
+        function showNotification(message, icon = '') {
+            const notif = document.getElementById('customNotification');
+            document.getElementById('notifIcon').innerText = icon;
+            document.getElementById('notifText').innerText = message;
+            
+            notif.classList.remove('translate-y-20', 'opacity-0');
+            notif.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                notif.classList.remove('translate-y-0', 'opacity-100');
+                notif.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // --- DATA BINDING MUTATORS ---
+        function updateNodeText(value) {
+            appState.nodes[appState.activeNodeId].text = value;
+            renderFlowMap();
+        }
+
+        // Escape helper to prevent injection but retain parsed anchor text updates safely
+        function escapeHTML(str) {
+            const div = document.createElement('div');
+            div.innerText = str;
+            return div.innerHTML;
+        }
+
+        // Regex parsing helper to cleanly detect clickable URLs 
+        function linkifyText(escapedStr, speaker) {
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            const linkClass = speaker === 'bot' 
+                ? 'underline text-sky-200 hover:text-white font-bold transition-all decoration-2' 
+                : 'underline text-emerald-100 hover:text-white font-bold transition-all decoration-2';
+            return escapedStr.replace(urlRegex, function(url) {
+                return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="${linkClass}">${url}</a>`;
+            });
+        }
+
+        function updateBranchLabel(index, value) {
+            const node = appState.nodes[appState.activeNodeId];
+            node.branches[index].text = value;
+
+            const targetId = node.branches[index].targetId;
+            if (appState.nodes[targetId]) {
+                appState.nodes[targetId].title = `Response: "${value}"`;
+            }
+            renderFlowMap();
+        }
+
+        // --- EXPORT AND IMPORT HANDLERS ---
+        function exportChatbot() {
+            try {
+                // Prepare state packet: reset temporary visual navigation pointers
+                const exportState = {
+                    nodes: appState.nodes
+                };
+                
+                // Construct downable payload
+                const dataString = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportState, null, 2));
+                const dummyAnchor = document.createElement('a');
+                dummyAnchor.setAttribute("href", dataString);
+                dummyAnchor.setAttribute("download", "my-chatbot.json");
+                document.body.appendChild(dummyAnchor);
+                dummyAnchor.click();
+                dummyAnchor.remove();
+                
+                showNotification("Flow exported successfully!", "✅");
+            } catch (err) {
+                showNotification("Could not export. Try again!");
+            }
+        }
+
+        function triggerImport() {
+            document.getElementById('importFileInput').click();
+        }
+
+        function importChatbot(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const fileReader = new FileReader();
+            fileReader.onload = function(e) {
+                try {
+                    const parsedData = JSON.parse(e.target.result);
+                    
+                    // Integrity verification check
+                    if (parsedData && parsedData.nodes && parsedData.nodes["root"]) {
+                        appState.nodes = parsedData.nodes;
+                        appState.activeNodeId = "root";
+                        appState.historyStack = [];
+                        
+                        renderEditor();
+                        renderFlowMap();
+                        showNotification("Flow imported successfully!", "✅");
+                    } else {
+                        showNotification("Incorrect file structure. Needs a 'root' starting point.");
+                    }
+                } catch (err) {
+                    showNotification("Could not parse file. Make sure it is a valid chatbot JSON.");
+                }
+            };
+            fileReader.readAsText(file);
+            
+            // Clear value to allow importing the same file consecutive times
+            event.target.value = '';
+        }
+
+        // --- NODE ADDITION / REMOVAL METHODS ---
+        function addBranch(isNextLinear = false) {
+            const currentNode = appState.nodes[appState.activeNodeId];
+
+            if (isNextLinear && currentNode.branches.some(b => b.isNext)) {
+                showNotification("A 'Next' step block already exists for this node!");
+                return;
+            }
+
+            const uniqueId = "node_" + Math.random().toString(36).substr(2, 9);
+            const branchLabel = isNextLinear ? "Next" : `Choice option ${currentNode.branches.length + 1}`;
+
+            // Create target node with blank text
+            appState.nodes[uniqueId] = {
+                id: uniqueId,
+                title: isNextLinear ? `Next Path` : `Response: "${branchLabel}"`,
+                text: "", // Clear initial text to show Hint Placeholder
+                type: "message",
+                branches: []
+            };
+
+            currentNode.branches.push({
+                text: branchLabel,
+                targetId: uniqueId,
+                isNext: isNextLinear,
+                isEnd: false
+            });
+
+            renderEditor();
+            renderFlowMap();
+            showNotification(isNextLinear ? "Added sequential step option!" : "Added customizable button branch!");
+        }
+
+        function removeBranch(index) {
+            const currentNode = appState.nodes[appState.activeNodeId];
+            const targetId = currentNode.branches[index].targetId;
+
+            // Clean up node and its trace recursively
+            delete appState.nodes[targetId];
+            currentNode.branches.splice(index, 1);
+
+            renderEditor();
+            renderFlowMap();
+            showNotification("Branch path successfully deleted.");
+        }
+
+        // Convert the active block to an ending point
+        function setNodeAsEnd() {
+            const currentNode = appState.nodes[appState.activeNodeId];
+            
+            if (currentNode.branches.length > 0) {
+                const confirmed = confirm("Are you sure? Converting this node to an End State will delete all its child choices.");
+                if (!confirmed) return;
+            }
+
+            currentNode.branches = [];
+            currentNode.type = "end";
+            
+            renderEditor();
+            renderFlowMap();
+            showNotification("Converted this block to an ending point.", "🛑");
+        }
+
+        function revertFromEnd() {
+            const currentNode = appState.nodes[appState.activeNodeId];
+            currentNode.type = "message";
+            
+            renderEditor();
+            renderFlowMap();
+            showNotification("Restored back to standard message block.");
+        }
+
+        // --- NAVIGATION ROUTING ---
+        function navigateTo(targetId) {
+            appState.historyStack.push(appState.activeNodeId);
+            appState.activeNodeId = targetId;
+            renderEditor();
+            renderFlowMap();
+        }
+
+        function goBack() {
+            if (appState.historyStack.length > 0) {
+                appState.activeNodeId = appState.historyStack.pop();
+                renderEditor();
+                renderFlowMap();
+            }
+        }
+
+        // --- VISUAL EDITOR RENDER ENGINE ---
+        function renderEditor() {
+            const workspace = document.getElementById('editorWorkspace');
+            const currentNode = appState.nodes[appState.activeNodeId];
+            const backBtn = document.getElementById('backBtn');
+            const badge = document.getElementById('activeNodeBadge');
+            const idLabel = document.getElementById('nodeIdLabel');
+
+            if (!currentNode) return;
+
+            idLabel.innerText = `ID: ${currentNode.id}`;
+            badge.innerText = currentNode.title;
+            if (appState.historyStack.length > 0) {
+                backBtn.classList.remove('hidden');
+            } else {
+                backBtn.classList.add('hidden');
+            }
+
+            // Case A: Terminal ending point editor view
+            if (currentNode.type === "end") {
+                workspace.innerHTML = `
+                    <div class="space-y-6">
+                        <!-- Bot Text Prompt Input Area -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-black text-slate-700 uppercase tracking-wider">What the Bot Says (Goodbye Message):</label>
+                            <div class="relative">
+                                <textarea oninput="updateNodeText(this.value)" 
+                                          placeholder="Type a final goodbye message for when the conversation ends (e.g., Oh, well that looks like it's it for now.)..." 
+                                          class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-brandBlue/20 focus:border-brandBlue focus:outline-none transition-all duration-200 text-base font-semibold leading-relaxed min-h-[100px] text-slate-800">${currentNode.text}</textarea>
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-rose-50 border border-rose-100 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <div class="flex items-center gap-3">
+                                <span class="text-2xl">🛑</span>
+                                <div>
+                                    <h4 class="font-bold text-rose-900 text-sm">This is an Ending Block</h4>
+                                    <p class="text-xs text-rose-700">The conversation ends automatically after this message is displayed in the simulator.</p>
+                                </div>
+                            </div>
+                            <button onclick="revertFromEnd()" class="px-4 py-2 bg-white hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold rounded-lg text-xs transition-colors shadow-sm whitespace-nowrap">
+                                Convert to Regular Block
+                            </button>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Case B: Standard Message Node Editor
+            let branchesListHTML = "";
+            if (currentNode.branches.length === 0) {
+                branchesListHTML = `
+                    <div class="text-center py-8 border-2 border-dashed border-slate-100 rounded-xl bg-slate-50/50">
+                        <p class="text-xs text-slate-400 mt-1">Use the buttons below to create branches for users to click.</p>
+                    </div>
+                `;
+            } else {
+                currentNode.branches.forEach((branch, index) => {
+                    const isNext = branch.isNext;
+                    
+                    let borderClass = isNext ? 'border-l-4 border-l-brandPurple' : 'border-l-4 border-l-brandGreen';
+                    let labelType = isNext ? '[Next Step]' : '[Choice]';
+
+                    branchesListHTML += `
+                        <div class="flex flex-col md:flex-row items-stretch md:items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100 transition-all ${borderClass}">
+                            <div class="flex items-center gap-2 flex-1">
+                                <span class="text-xs font-bold text-slate-400 uppercase mr-1">${labelType}</span>
+                                <input type="text" 
+                                       value="${branch.text}" 
+                                       oninput="updateBranchLabel(${index}, this.value)" 
+                                       placeholder="Enter choice text..." 
+                                       class="flex-1 bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-slate-200 text-slate-800"
+                                       ${isNext ? 'disabled' : ''}>
+                            </div>
+                            <div class="flex items-center gap-2 justify-end">
+                                <button onclick="navigateTo('${branch.targetId}')" class="px-3 py-1.5 bg-brandBlue text-white hover:bg-opacity-90 font-bold text-xs rounded-lg transition-colors flex items-center gap-1">
+                                    Go to Node
+                                </button>
+                                <button onclick="removeBranch(${index})" class="p-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-lg transition-colors" title="Delete path">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            // Customize textarea placeholder based on node context
+            let workspacePlaceholder = "Type what the chatbot says at this step of the conversation...";
+            if (currentNode.id === "root") {
+                workspacePlaceholder = "Type what your chatbot says to welcome users (e.g., Hi! Welcome to my chatbot.)";
+            }
+
+            workspace.innerHTML = `
+                <div class="space-y-6">
+                    <!-- Bot Text Prompt Input Area -->
+                    <div class="space-y-2">
+                        <label class="block text-sm font-black text-slate-700 uppercase tracking-wider">What the Bot Says:</label>
+                        <div class="relative">
+                            <textarea oninput="updateNodeText(this.value)" 
+                                      placeholder="${workspacePlaceholder}" 
+                                      class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-brandBlue/20 focus:border-brandBlue focus:outline-none transition-all duration-200 text-base font-semibold leading-relaxed min-h-[100px] text-slate-800">${currentNode.text}</textarea>
+                        </div>
+                    </div>
+
+                    <!-- Flow Branching List Options -->
+                    <div class="space-y-3">
+                        <label class="block text-sm font-black text-slate-700 uppercase tracking-wider">Choices & Continuation Actions:</label>
+                        <div class="space-y-2">
+                            ${branchesListHTML}
+                        </div>
+                    </div>
+
+                    <!-- Actions Toolbox Controls -->
+                    <div class="pt-6 border-t border-slate-100 flex flex-wrap gap-3">
+                        <button onclick="addBranch(false)" class="flex-1 min-w-[180px] py-3 px-4 border-2 border-dashed border-brandGreen/40 hover:border-brandGreen bg-white hover:bg-emerald-50/25 text-brandGreen font-bold rounded-xl text-sm transition-all flex items-center justify-center gap-2">
+                            + Add User Response
+                        </button>
+                        <button onclick="addBranch(true)" class="flex-1 min-w-[180px] py-3 px-4 border-2 border-dashed border-brandPurple/40 hover:border-brandPurple bg-white hover:bg-pink-50/25 text-brandPurple font-bold rounded-xl text-sm transition-all flex items-center justify-center gap-2">
+                            Add "Next ↪"
+                        </button>
+                        <button onclick="setNodeAsEnd()" class="flex-1 min-w-[180px] py-3 px-4 border-2 border-dashed border-rose-300 hover:border-rose-600 bg-white hover:bg-rose-50/25 text-rose-600 hover:text-rose-800 font-bold rounded-xl text-sm transition-all flex items-center justify-center gap-2">
+                            🛑 End Conversation
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ==========================================
+        // --- TRUE VISUAL FLOWCHART MAP ENGINE ---
+        // ==========================================
+        function renderFlowMap() {
+            const container = document.getElementById('flowMapList');
+            if (!container) return;
+            container.innerHTML = '';
+
+            let positions = {};
+            let leafCount = 0;
+            let maxDepth = 0;
+
+            // Recurse from root to map coordinates dynamically
+            function computeLayout(nodeId, depth) {
+                const node = appState.nodes[nodeId];
+                if (!node) return;
+                if (depth > maxDepth) maxDepth = depth;
+
+                const children = (node.branches || [])
+                    .map(b => b.targetId)
+                    .filter(id => appState.nodes[id]);
+
+                if (children.length === 0) {
+                    positions[nodeId] = { depth: depth, order: leafCount };
+                    leafCount++;
+                } else {
+                    children.forEach(childId => computeLayout(childId, depth + 1));
+                    const firstChildOrder = positions[children[0]].order;
+                    const lastChildOrder = positions[children[children.length - 1]].order;
+                    positions[nodeId] = { depth: depth, order: (firstChildOrder + lastChildOrder) / 2 };
+                }
+            }
+
+            // Begin calculation setup
+            computeLayout("root", 0);
+
+            // Node scaling properties for layout mapping
+            const nodeWidth = 100;
+            const nodeHeight = 44;
+            const hGap = 110;
+            const vGap = 80;
+
+            const canvasWidth = Math.max(container.clientWidth - 16, leafCount * hGap);
+            const canvasHeight = Math.max(container.clientHeight - 16, (maxDepth + 1.5) * vGap);
+
+            // Flowchart Outer Scrolling Container
+            const mapScrollWrapper = document.createElement('div');
+            mapScrollWrapper.className = "w-full h-full overflow-auto bg-slate-50 border border-slate-100 rounded-xl relative p-4";
+            
+            const flowCanvas = document.createElement('div');
+            flowCanvas.className = "relative";
+            flowCanvas.style.width = `${canvasWidth}px`;
+            flowCanvas.style.height = `${canvasHeight}px`;
+
+            // SVG Backplane overlay
+            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.style.position = "absolute";
+            svg.style.top = "0";
+            svg.style.left = "0";
+            svg.style.width = "100%";
+            svg.style.height = "100%";
+            svg.style.pointerEvents = "none";
+            svg.style.zIndex = "5";
+            svg.innerHTML = `
+                <defs>
+                    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                        <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#94A3B8"/>
+                    </marker>
+                </defs>
+            `;
+            flowCanvas.appendChild(svg);
+
+            // Auto center/horizontally space layout steps
+            const actualHGap = leafCount > 1 ? (canvasWidth - nodeWidth) / (leafCount - 1) : 0;
+            const startX = leafCount > 1 ? 0 : (canvasWidth - nodeWidth) / 2;
+
+            // Draw HTML Interactive Nodes
+            Object.keys(positions).forEach(nodeId => {
+                const pos = positions[nodeId];
+                const node = appState.nodes[nodeId];
+                if (!node) return;
+
+                const x = startX + pos.order * actualHGap;
+                const y = 10 + pos.depth * vGap;
+
+                // Track midpoints for rendering connector lines
+                pos.actualX = x + nodeWidth / 2;
+                pos.actualY = y + nodeHeight / 2;
+
+                const nodeBtn = document.createElement('button');
+                nodeBtn.className = "absolute z-10 px-2 py-1 text-center text-[10px] font-bold rounded-lg border-2 transition-all duration-200 shadow-sm flex flex-col items-center justify-center hover:shadow-md";
+                nodeBtn.style.width = `${nodeWidth}px`;
+                nodeBtn.style.height = `${nodeHeight}px`;
+                nodeBtn.style.left = `${x}px`;
+                nodeBtn.style.top = `${y}px`;
+
+                // Distinct colors for visual clarity
+                let colors = "bg-white border-slate-200 text-slate-700 hover:border-slate-300";
+                if (nodeId === appState.activeNodeId) {
+                    colors = "bg-pink-50 border-brandPurple text-brandPurple ring-2 ring-pink-100";
+                } else if (node.type === "end") {
+                    colors = "bg-rose-50 border-rose-300 text-rose-700 hover:bg-rose-100/50";
+                } else if (nodeId === "root") {
+                    colors = "bg-blue-50 border-brandBlue text-brandBlue hover:bg-blue-100/50";
+                }
+
+                nodeBtn.className += ` ${colors}`;
+
+                let headerLabel = nodeId === "root" ? "Start" : node.type === "end" ? "End 🛑" : "Step";
+                let truncatedTitle = node.title.length > 15 ? node.title.substring(0, 12) + "..." : node.title;
+
+                nodeBtn.innerHTML = `
+                    <span class="text-[8px] font-black uppercase tracking-wider text-slate-400 leading-none">${headerLabel}</span>
+                    <span class="truncate w-full block mt-0.5 text-slate-700">${nodeId === 'root' ? 'Greeting' : truncatedTitle}</span>
+                `;
+
+                nodeBtn.onclick = () => {
+                    appState.historyStack = [];
+                    appState.activeNodeId = nodeId;
+                    renderEditor();
+                    renderFlowMap();
+                };
+
+                flowCanvas.appendChild(nodeBtn);
+            });
+
+            // Draw SVG connectors
+            Object.keys(positions).forEach(nodeId => {
+                const node = appState.nodes[nodeId];
+                if (!node || node.type === "end") return;
+
+                const parentPos = positions[nodeId];
+
+                (node.branches || []).forEach(branch => {
+                    const childPos = positions[branch.targetId];
+                    if (!childPos) return;
+
+                    const x1 = parentPos.actualX;
+                    const y1 = parentPos.actualY + (nodeHeight / 2);
+                    const x2 = childPos.actualX;
+                    const y2 = childPos.actualY - (nodeHeight / 2);
+
+                    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                    const ctrlDist = Math.min(30, Math.abs(y2 - y1) * 0.5);
+                    const d = `M ${x1} ${y1} C ${x1} ${y1 + ctrlDist}, ${x2} ${y2 - ctrlDist}, ${x2} ${y2}`;
+
+                    path.setAttribute("d", d);
+                    path.setAttribute("fill", "none");
+                    path.setAttribute("stroke", branch.isNext ? "#BD519D" : "#94A3B8");
+                    path.setAttribute("stroke-width", "2");
+                    path.setAttribute("marker-end", "url(#arrow)");
+
+                    svg.appendChild(path);
+                });
+            });
+
+            mapScrollWrapper.appendChild(flowCanvas);
+            container.appendChild(mapScrollWrapper);
+        }
+
+        // ==========================================
+        // --- CHAT SIMULATOR PROCESSOR LOGIC ---
+        // ==========================================
+        let simActiveNodeId = "root";
+
+        function resetSimulation() {
+            const chatDisplay = document.getElementById('chatDisplay');
+            chatDisplay.innerHTML = '';
+            simActiveNodeId = "root";
+            runSimulationStep();
+        }
+
+        function runSimulationStep() {
+            const chatDisplay = document.getElementById('chatDisplay');
+            const choicePanel = document.getElementById('chatChoiceControls');
+            choicePanel.innerHTML = '';
+
+            const node = appState.nodes[simActiveNodeId];
+            if (!node) return;
+
+            // Deliver bot response bubble with clickable URL checking
+            // Fall back to clean descriptive placeholder sentences in chat bubbles if user left node empty
+            let nodeSpeech = node.text.trim();
+            if (!nodeSpeech) {
+                if (node.id === "root") {
+                    nodeSpeech = "Hi! Welcome to my chatbot.";
+                } else if (node.type === "end") {
+                    nodeSpeech = "Oh, well that looks like it's it for now.";
+                } else {
+                    nodeSpeech = "Here is the next step! Update this text to write what your bot says next.";
+                }
+            }
+
+            appendMessageBubble(nodeSpeech, 'bot');
+
+            // Wait until goodbye bubble is drawn before offering reset sequence
+            if (node.type === "end") {
+                appendRestartButton();
+                return;
+            }
+
+            if (node.branches.length === 0) {
+                appendMessageBubble("This is the end of my story branches! Tap the restart button to try a different direction.", "bot");
+                appendRestartButton();
+                return;
+            }
+
+            node.branches.forEach(branch => {
+                const btn = document.createElement('button');
+                
+                if (branch.isNext) {
+                    btn.className = "px-4 py-2 bg-brandPurple text-white hover:bg-opacity-90 rounded-full font-bold text-sm transition-all shadow-sm flex items-center gap-1.5";
+                    btn.innerHTML = `${branch.text}`;
+                } else {
+                    btn.className = "px-4 py-2 bg-brandGreen text-white hover:bg-opacity-90 rounded-full font-bold text-sm transition-all shadow-sm";
+                    btn.innerText = branch.text;
+                }
+
+                btn.onclick = () => {
+                    appendMessageBubble(branch.text, 'user');
+                    simActiveNodeId = branch.targetId;
+
+                    choicePanel.innerHTML = '';
+                    setTimeout(runSimulationStep, 450);
+                };
+
+                choicePanel.appendChild(btn);
+            });
+        }
+
+        function appendMessageBubble(text, speaker) {
+            const display = document.getElementById('chatDisplay');
+            const wrapper = document.createElement('div');
+            
+            // Safe escape first, then linkify raw URL pointers
+            const escaped = escapeHTML(text);
+            const formattedText = linkifyText(escaped, speaker);
+
+            if (speaker === 'bot') {
+                wrapper.className = "flex justify-start";
+                wrapper.innerHTML = `
+                    <div class="msg-bubble bot bg-brandBlue text-white px-4 py-2.5 shadow-sm text-sm font-semibold">
+                        ${formattedText}
+                    </div>
+                `;
+            } else {
+                wrapper.className = "flex justify-end";
+                wrapper.innerHTML = `
+                    <div class="msg-bubble user bg-brandGreen text-white px-4 py-2.5 shadow-sm text-sm font-semibold">
+                        ${formattedText}
+                    </div>
+                `;
+            }
+
+            display.appendChild(wrapper);
+            display.scrollTop = display.scrollHeight;
+        }
+
+        function appendRestartButton() {
+            const choicePanel = document.getElementById('chatChoiceControls');
+            const restartBtn = document.createElement('button');
+            restartBtn.className = "px-5 py-2.5 bg-slate-700 text-white hover:bg-slate-800 rounded-full font-bold text-sm transition-all shadow-sm flex items-center gap-2";
+            restartBtn.innerHTML = "Start Conversation Over";
+            restartBtn.onclick = resetSimulation;
+            choicePanel.appendChild(restartBtn);
+        }
+
+        // Re-draw map layout dynamically on browser window resizing
+        window.addEventListener('resize', renderFlowMap);
+
+        // --- APP INITIAL START TRIGGER ---
+        renderEditor();
+        renderFlowMap();
+
+// --- MULTI-STEP TUTORIAL ONBOARDING ENGINE ---
+        let currentTourStep = 0;
+        const tourSteps = [
+            {
+                title: "🤖 Welcome to Chatbot Playground!",
+                body: "This playground lets you design, map, and test your very own choice-driven chatbot without writing a single line of code! Let's take a quick 1-minute tour to see how it works.",
+                tab: "build"
+            },
+            {
+                title: "Two Ways to Work: Build vs. Test",
+                body: "Switch between your work areas using the toggle in the upper right:<br><br>• <strong>🛠️ Build Mode:</strong> Lay out your conversational choices using an interactive card editor and watch a live flowchart compile your logic.<br>• <strong>💬 Test Mode:</strong> Interact with your chatbot live in an app simulation just like a real user would!",
+                tab: "build"
+            },
+            {
+                title: "Your Starting Line: Welcome Greeting",
+                body: "Every great conversation needs an icebreaker. Your bot starts at the <strong>Welcome Greeting</strong> block. Write your opening script into the 'What the Bot Says' prompt area. This is the first thing users see when your bot wakes up.<br><br>Use the <strong>Flowchart Map</strong> to click any node and hop directly into its editor.",
+                tab: "build"
+            },
+            {
+                title: "Branching Out with Action Buttons",
+                body: "Control how paths unfold using the toolbox at the bottom of your block editor:<br><br>• 🟢 <strong class='text-brandGreen'>Add User Response:</strong> Adds user response branches (like 'Yes' or 'No') that your user can select.<br>• 🟣 <strong class='text-brandPurple'>Add 'Next':</strong> Continues the conversation when you don't need the user to make a choice.<br>• 🔴 <strong class='text-rose-600'>End Conversation:</strong> Tells the simulator to stop and deliver a final goodbye message.",
+                tab: "build"
+            },
+            {
+                title: "Simulate and Export Your Masterpiece",
+                body: "When you're happy with your logic, click <strong>Export File</strong> to download your chatbot data. You can <strong>Import</strong> it anytime later to keep refining your build!",
+                tab: "build"
+            }
+        ];
+
+        function startTutorial() {
+            currentTourStep = 0;
+            const modal = document.getElementById('tourModal');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.querySelector('div').classList.remove('scale-95');
+            }, 10);
+            renderTourStep();
+        }
+
+        function closeTutorial() {
+            const modal = document.getElementById('tourModal');
+            modal.classList.add('opacity-0');
+            modal.querySelector('div').classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+            // Re-anchor user back to build page cleanly on finish
+            switchTab('build'); 
+        }
+
+        function renderTourStep() {
+            const stepData = tourSteps[currentTourStep];
+            
+            // Switch tab contexts seamlessly if the step highlights a certain panel
+            switchTab(stepData.tab);
+
+            // Update Text Content
+            document.getElementById('tourContent').innerHTML = `
+                <h3 class="text-xl font-black text-brandBlue tracking-wide leading-snug">${stepData.title}</h3>
+                <p class="text-sm text-slate-600 font-medium leading-relaxed">${stepData.body}</p>
+            `;
+
+            // Calculate Progress Bar
+            const progressPct = ((currentTourStep + 1) / tourSteps.length) * 100;
+            document.getElementById('tourProgress').style.width = `${progressPct}%`;
+
+            // Handle button transformations
+            const prevBtn = document.getElementById('tourPrevBtn');
+            const nextBtn = document.getElementById('tourNextBtn');
+
+            prevBtn.disabled = currentTourStep === 0;
+
+            if (currentTourStep === tourSteps.length - 1) {
+                nextBtn.innerText = "Let's Build! ✨";
+                nextBtn.className = "px-5 py-2 bg-brandGreen hover:bg-opacity-90 text-white font-bold text-sm rounded-full transition-all shadow-md";
+            } else {
+                nextBtn.innerText = "Next";
+                nextBtn.className = "px-5 py-2 bg-brandBlue hover:bg-opacity-90 text-white font-bold text-sm rounded-full transition-all shadow-md";
+            }
+        }
+
+        function nextTutorialStep() {
+            if (currentTourStep < tourSteps.length - 1) {
+                currentTourStep++;
+                renderTourStep();
+            } else {
+                closeTutorial();
+            }
+        }
+
+        function prevTutorialStep() {
+            if (currentTourStep > 0) {
+                currentTourStep--;
+                renderTourStep();
+            }
+        }
+
+        // AUTO-TRIGGER THE TOUR ON PAGE INITIALIZATION
+        window.addEventListener('DOMContentLoaded', () => {
+            // Tiny timeout allows Tailwind layout layers to render cleanly first
+            setTimeout(startTutorial, 600); 
+        });
+    </script>
+</body>
+</html>
