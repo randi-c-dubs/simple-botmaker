@@ -1,0 +1,208 @@
+{
+  "nodes": {
+    "root": {
+      "id": "root",
+      "title": "Turn 1: The Casual Hook",
+      "text": "Let's figure out what's going on with you today. Pick the word that hits closest to your energy right now.",
+      "type": "message",
+      "branches": [
+        { "text": "Overwhelmed", "targetId": "node_t2_overwhelmed", "isNext": false, "isEnd": false },
+        { "text": "Bored / Stuck", "targetId": "node_t2_bored", "isNext": false, "isEnd": false },
+        { "text": "Fine / Guarded", "targetId": "node_t2_fine", "isNext": false, "isEnd": false }
+      ]
+    },
+    "node_t2_overwhelmed": {
+      "id": "node_t2_overwhelmed",
+      "title": "Turn 2: Overwhelmed Validation",
+      "text": "That's a lot to deal with. Usually, when things feel that heavy, it's because you're trying to manage a bunch of expectations that shouldn't even be yours to fix. Does that sound about right?",
+      "type": "message",
+      "branches": [
+        { "text": "Next", "targetId": "node_t3_funnel", "isNext": true, "isEnd": false }
+      ]
+    },
+    "node_t2_bored": {
+      "id": "node_t2_bored",
+      "title": "Turn 2: Bored Validation",
+      "text": "That's a weirdly frustrating space to be in. People think boredom is peaceful, but it usually means you're completely drained by routines that don't actually matter to you.",
+      "type": "message",
+      "branches": [
+        { "text": "Next", "targetId": "node_t3_funnel", "isNext": true, "isEnd": false }
+      ]
+    },
+    "node_t2_fine": {
+      "id": "node_t2_fine",
+      "title": "Turn 2: Fine Validation",
+      "text": "Fair enough. But honestly, sometimes saying you're 'fine' is just an easy defense mechanism to shut everything else out so you don't have to break your focus.",
+      "type": "message",
+      "branches": [
+        { "text": "Next", "targetId": "node_t3_funnel", "isNext": true, "isEnd": false }
+      ]
+    },
+    "node_t3_funnel": {
+      "id": "node_t3_funnel",
+      "title": "Turn 3: The Mind Drift",
+      "text": "When you finally get a quiet second alone with your thoughts, where does your brain usually end up drifting?",
+      "type": "message",
+      "branches": [
+        { "text": "Worrying about what's next", "targetId": "node_t4_future", "isNext": false, "isEnd": false },
+        { "text": "Back to past mistakes", "targetId": "node_t4_past", "isNext": false, "isEnd": false }
+      ]
+    },
+    "node_t4_future": {
+      "id": "node_t4_future",
+      "title": "Turn 4: Future Response",
+      "text": "It almost sounds like you're trying to solve problems that haven't even happened yet—like you're constantly stressing over a script that hasn't even been written.",
+      "type": "message",
+      "branches": [
+        { "text": "Next", "targetId": "node_t5_pressure_split", "isNext": true, "isEnd": false }
+      ]
+    },
+    "node_t4_past": {
+      "id": "node_t4_past",
+      "title": "Turn 4: Past Response",
+      "text": "It's incredibly exhausting to live like that. You keep reviewing old footage, playing back conversations or choices, and wishing you could rewrite a script that's already finished.",
+      "type": "message",
+      "branches": [
+        { "text": "Next", "targetId": "node_t5_pressure_split", "isNext": true, "isEnd": false }
+      ]
+    },
+    "node_t5_pressure_split": {
+      "id": "node_t5_pressure_split",
+      "title": "Turn 5: The Pressure Source",
+      "text": "There's usually a specific pressure pulling at your attention when that happens. Is it mostly tied to school and grades, or is it more of a social, friend group kind of thing?",
+      "type": "message",
+      "branches": [
+        { "text": "School / Grades", "targetId": "node_t6_school", "isNext": false, "isEnd": false },
+        { "text": "Social / Friends", "targetId": "node_t6_social", "isNext": false, "isEnd": false }
+      ]
+    },
+    "node_t6_school": {
+      "id": "node_t6_school",
+      "title": "Turn 6: Academic Focus",
+      "text": "Yeah, the academic weight. It's like there's this constant background noise telling you that a single grade or test score is going to dictate your entire life direction.",
+      "type": "message",
+      "branches": [
+        { "text": "Next", "targetId": "node_t7_target_split", "isNext": true, "isEnd": false }
+      ]
+    },
+    "node_t6_social": {
+      "id": "node_t6_social",
+      "title": "Turn 6: Social Focus",
+      "text": "The social side of things is so messy. Trying to fit into a dynamic, worrying about what people think, or dealing with subtle drama takes up way more mental energy than people admit.",
+      "type": "message",
+      "branches": [
+        { "text": "Next", "targetId": "node_t7_target_split", "isNext": true, "isEnd": false }
+      ]
+    },
+    "node_t7_target_split": {
+      "id": "node_t7_target_split",
+      "title": "Turn 7: The Root Fear",
+      "text": "When you look closely at where that pressure is actually coming from, what feels like the absolute worst part of it?",
+      "type": "message",
+      "branches": [
+        { "text": "Disappointing other people", "targetId": "node_t8_others", "isNext": false, "isEnd": false },
+        { "text": "Failing my own expectations", "targetId": "node_t8_self", "isNext": false, "isEnd": false }
+      ]
+    },
+    "node_t8_others": {
+      "id": "node_t8_others",
+      "title": "Turn 8: External Validation",
+      "text": "That's a heavy burden. You end up managing everyone else's potential reactions and anxiety instead of just giving yourself the space to figure out what you need.",
+      "type": "message",
+      "branches": [
+        { "text": "Next", "targetId": "node_t9_internal_funnel", "isNext": true, "isEnd": false }
+      ]
+    },
+    "node_t8_self": {
+      "id": "node_t8_self",
+      "title": "Turn 8: Internal Validation",
+      "text": "That's a very quiet, lonely kind of stress. When you are your own harshest critic, you never get a break. Even when you do well, your brain just moves the goalposts away.",
+      "type": "message",
+      "branches": [
+        { "text": "Next", "targetId": "node_t9_internal_funnel", "isNext": true, "isEnd": false }
+      ]
+    },
+    "node_t9_internal_funnel": {
+      "id": "node_t9_internal_funnel",
+      "title": "Turn 9: Internalized Standards",
+      "text": "Be totally honest: Do you feel like these massive stakes are actually being forced on you right now, or have you just internalized the idea that anything less than perfect is a total failure?",
+      "type": "message",
+      "branches": [
+        { "text": "I've internalized it", "targetId": "node_t10_internalized", "isNext": false, "isEnd": false },
+        { "text": "It's entirely outside pressure", "targetId": "node_t10_outside", "isNext": false, "isEnd": false }
+      ]
+    },
+    "node_t10_internalized": {
+      "id": "node_t10_internalized",
+      "title": "Turn 10: Judge Feedback",
+      "text": "It sounds like you've become your own toughest boss. You're holding yourself to a standard of performance that you would probably never demand from a close friend.",
+      "type": "message",
+      "branches": [
+        { "text": "Next", "targetId": "node_t11_coping_split", "isNext": true, "isEnd": false }
+      ]
+    },
+    "node_t10_outside": {
+      "id": "node_t10_outside",
+      "title": "Turn 10: System Feedback",
+      "text": "It definitely feels like the environment around you is running like a pressure cooker. It forces you to constantly compete, compare, and measure your daily worth against everyone else.",
+      "type": "message",
+      "branches": [
+        { "text": "Next", "targetId": "node_t11_coping_split", "isNext": true, "isEnd": false }
+      ]
+    },
+    "node_t11_coping_split": {
+      "id": "node_t11_coping_split",
+      "title": "Turn 11: The Reaction",
+      "text": "When that underlying stress starts building up and acting up in your routine, how does it usually warp your day-to-day life?",
+      "type": "message",
+      "branches": [
+        { "text": "I completely procrastinate and freeze", "targetId": "node_t12_freeze", "isNext": false, "isEnd": false },
+        { "text": "I overwork until I crash", "targetId": "node_t12_crash", "isNext": false, "isEnd": false }
+      ]
+    },
+    "node_t12_freeze": {
+      "id": "node_t12_freeze",
+      "title": "Turn 12: Freeze Response",
+      "text": "Freezing is a classic defense mechanism. If you don't actually start the task, your mind thinks it's protecting you from failing at it. But it just keeps you trapped in the anxiety.",
+      "type": "message",
+      "branches": [
+        { "text": "Next", "targetId": "node_t13_escape_funnel", "isNext": true, "isEnd": false }
+      ]
+    },
+    "node_t12_crash": {
+      "id": "node_t12_crash",
+      "title": "Turn 12: Crash Response",
+      "text": "Running on pure adrenaline only works for a little while. You keep pushing because you're terrified that if you slow down for even an hour, the whole structure will fall apart.",
+      "type": "message",
+      "branches": [
+        { "text": "Next", "targetId": "node_t13_escape_funnel", "isNext": true, "isEnd": false }
+      ]
+    },
+    "node_t13_escape_funnel": {
+      "id": "node_t13_escape_funnel",
+      "title": "Turn 13: High-Stress Resting",
+      "text": "And when you try to escape that cycle by scrolling on your phone or isolating in your room, it never actually feels like a break, does it? It's 'high-stress resting'—your body is still, but your mind is still burning massive amounts of fuel.",
+      "type": "message",
+      "branches": [
+        { "text": "Next", "targetId": "node_t14_magic_button", "isNext": true, "isEnd": false }
+      ]
+    },
+    "node_t14_magic_button": {
+      "id": "node_t14_magic_button",
+      "title": "Turn 14: The Obligation Check",
+      "text": "Imagine if you could magically delete just one major obligation or social expectation from your plate today. If that button were right in front of you, would you honestly press it?",
+      "type": "message",
+      "branches": [
+        { "text": "Yes, instantly", "targetId": "node_t15_end", "isNext": false, "isEnd": false },
+        { "text": "No, I'd hesitate", "targetId": "node_t15_end", "isNext": false, "isEnd": false }
+      ]
+    },
+    "node_t15_end": {
+      "id": "node_t15_end",
+      "title": "Turn 15: The Final Mirror",
+      "text": "The fact that we can trace your habits all the way from how you walked into this room to how you handle your deepest pressures shows how real these patterns are. Whether you're stuck reviewing yesterday or racing into tomorrow, you're missing right now. You don't have to carry it all perfectly. Put down the script, close this tab, and go take one small, imperfect action. You're going to be okay.",
+      "type": "end",
+      "branches": []
+    }
+  }
+}

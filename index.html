@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Day of AI - Chatbot Builder</title>
     <link rel="icon" type="image/x-icon" href="./images/favicon.ico">
-    <!-- Tailwind CSS for utility foundation, paired with specific brand-themed overrides -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -47,54 +46,62 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #94A3B8;
         }
+        /* Grid background look for flow canvas workspace */
+        .canvas-grid-bg {
+            background-size: 20px 20px;
+            background-image: linear-gradient(to right, #f1f5f9 1px, transparent 1px),
+                              linear-gradient(to bottom, #f1f5f9 1px, transparent 1px);
+        }
     </style>
 </head>
-<body class="bg-bgLight text-slate-800 min-h-screen flex flex-col font-sans">
+<body class="bg-bgLight text-slate-800 min-h-screen flex flex-col font-sans select-none">
 
-    <!-- BRANDED HEADER -->
-    <header class="bg-white border-b-2 border-slate-100 px-6 py-4 flex flex-col lg:flex-row justify-between items-center gap-4 sticky top-0 z-30 shadow-sm">
+    <header class="bg-white border-b-2 border-slate-100 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4 sticky top-0 z-30 shadow-sm">
         <div class="flex items-center gap-3">
-            <div class="flex gap-1 items-end"><a href="https://dayofai.org"><img src="./images/doai_logo.png" class="w-[51px] alt="Day of AI"></a></div>
+            <div class="flex gap-1 items-end"><a href="https://dayofai.org"><img src="./images/doai_logo.png" class="w-[51px]" alt="Day of AI"></a></div>
             <div>
                 <span class="text-xl font-semibold text-brandBlue tracking-widest uppercase">Chatbot<br/>Playground</span>
             </div>
         </div>
-        <!-- Import / Export Controls & Tab Controls -->
-        <div class="flex flex-wrap items-center gap-4">
-	<button onclick="startTutorial()" class="px-4 py-2 border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-600 font-bold text-sm rounded-full transition-all flex items-center gap-2">
-        Tutorial
-    </button>
-            <!-- Save/Load Actions (Hidden input handles file parsing) -->
-            <div class="flex gap-2">
-                <input type="file" id="importFileInput" accept=".json" class="hidden" onchange="importChatbot(event)">
-                <button onclick="triggerImport()" class="px-4 py-2 border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-600 font-bold text-sm rounded-full transition-all flex items-center gap-2">
-                    Import File
-                </button>
-                <button onclick="exportChatbot()" class="px-4 py-2 border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-600 font-bold text-sm rounded-full transition-all flex items-center gap-2">
-                    Export File
-                </button>
-            </div>
+        
+        <div class="flex flex-wrap items-center gap-3">
+            <button onclick="startTutorial()" class="px-4 py-2 border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-600 font-bold text-sm rounded-full transition-all">
+                Tutorial Guide
+            </button>
             
-            <!-- Tab controls with allowed emojis -->
-            <div class="flex bg-slate-100 p-1.5 rounded-full border border-slate-200">
-                <button id="buildTabBtn" onclick="switchTab('build')" class="px-5 py-2 text-sm font-bold rounded-full transition-all duration-200 bg-brandPurple text-white shadow-sm">
-                    🛠️ Build Mode
-                </button>
-                <button id="testTabBtn" onclick="switchTab('test')" class="px-5 py-2 text-sm font-bold rounded-full transition-all duration-200 text-slate-600 hover:text-slate-900">
-                    💬 Test Mode
+            <div class="flex items-center gap-2">
+                <input type="file" id="importFileInput" accept=".json" class="hidden" onchange="importChatbot(event)">
+                
+                <select id="workflowSelector" onchange="handleWorkflowSelection(this)" class="px-4 py-2 border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-600 font-bold text-sm rounded-full transition-all outline-none cursor-pointer shadow-sm">
+                    <option value="" disabled selected>Load/Import File</option>
+                    <option value="dinner-chatbot.json">Template: Dinner Chatbot</option>
+                    <option value="eliza_chatbot1.json">Template: EmotiBot</option>
+                    <option value="upload">Upload Custom JSON File...</option>
+                </select>
+
+                <button onclick="exportChatbot()" class="px-4 py-2 border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-600 font-bold text-sm rounded-full transition-all shadow-sm">
+                    Export File
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- MAIN INTERACTIVE CONTAINER -->
-    <main class="flex-1 p-4 md:p-8 max-w-7xl w-full mx-auto">
+    <main class="flex-1 p-4 md:p-8 max-w-7xl w-full mx-auto flex flex-col gap-6">
         
-        <!-- ================= BUILD TAB PANEL ================= -->
+        <div class="flex justify-center">
+            <div class="flex bg-slate-200/70 p-1.5 rounded-full border border-slate-200/80 shadow-inner">
+                <button id="buildTabBtn" onclick="switchTab('build')" class="px-8 py-2.5 text-m font-bold rounded-full transition-all duration-200 bg-brandPurple text-white shadow-sm">
+                    🛠️ Build Mode
+                </button>
+                <button id="testTabBtn" onclick="switchTab('test')" class="px-8 py-2.5 text-m font-bold rounded-full transition-all duration-200 text-slate-600 hover:text-slate-900">
+                    💬 Test Mode
+                </button>
+            </div>
+        </div>
+        
         <div id="buildPanel" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
-            <!-- Primary Form Editor Block -->
-            <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-sm transition-all">
+            <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-sm transition-all h-[600px] flex flex-col">
                 <div class="flex justify-between items-center border-b border-slate-100 pb-4 mb-6">
                     <div class="flex items-center gap-3">
                         <button id="backBtn" onclick="goBack()" class="hidden px-3 py-1.5 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">
@@ -107,37 +114,43 @@
                     <span class="text-xs text-slate-400 font-semibold" id="nodeIdLabel">ID: root</span>
                 </div>
 
-                <!-- Interactive Card Body Content -->
-                <div id="editorWorkspace">
-                    <!-- Loaded dynamically via state -->
-                </div>
+                <div id="editorWorkspace" class="flex-1 overflow-y-auto pr-1">
+                    </div>
             </div>
 
-            <!-- Auto-Updating Visual Flowchart Diagram Side Panel -->
             <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col h-[600px]">
-                <div class="border-b border-slate-100 pb-4 mb-4">
-                    <h2 class="font-bold text-slate-800 flex items-center gap-2">
-                        Flowchart Map
-                    </h2>
-                    <p class="text-xs text-slate-400 mt-1">This updates automatically. Click any block in the flowchart to jump directly to editing its logic.</p>
+                <div class="border-b border-slate-100 pb-4 mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                        <h2 class="font-bold text-slate-800">Flowchart Map</h2>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Scroll to Zoom. Drag to Pan canvas around.</p>
+                    </div>
+                    <button onclick="resetZoomPan()" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] font-bold rounded-md transition-colors">
+                        Reset View
+                    </button>
                 </div>
                 
-                <!-- Dynamic SVG Flowchart Diagram Canvas -->
-                <div id="flowMapList" class="flex-1 relative overflow-hidden">
-                    <!-- Dynamic chart builds here -->
+                <div id="flowMapContainer" class="flex-1 relative overflow-hidden bg-slate-50 border border-slate-100 rounded-xl canvas-grid-bg cursor-grab active:cursor-grabbing">
+                    <div id="flowCanvas" class="absolute transform-gpu" style="transform-origin: 0 0;">
+                        <svg id="flowSVG" class="absolute pointer-events-none z-5" style="width:100%; height:100%;">
+                            <defs>
+                                <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                                    <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#94A3B8"/>
+                                </marker>
+                            </defs>
+                        </svg>
+                        <div id="flowNodesContainer" class="absolute inset-0 z-10 pointer-events-none"></div>
+                    </div>
                 </div>
             </div>
 
         </div>
 
-        <!-- ================= TEST TAB PANEL (CHAT SIMULATOR) ================= -->
-        <div id="testPanel" class="hidden max-w-xl mx-auto">
+        <div id="testPanel" class="hidden max-w-xl mx-auto w-full">
             <div class="bg-white rounded-2xl border border-slate-200 shadow-md overflow-hidden flex flex-col h-[600px]">
                 
-                <!-- Simulated App Header -->
                 <div class="bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-between">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-brandBlue flex items-center justify-center text-white font-black shadow-sm">
+                        <div class="w-10 h-10 rounded-full bg-brandBlue flex items-center justify-center text-white font-black shadow-sm text-lg">
                             🤖
                         </div>
                         <div>
@@ -152,16 +165,12 @@
                     </button>
                 </div>
 
-                <!-- Chat Dialog Area -->
                 <div id="chatDisplay" class="flex-1 p-6 overflow-y-auto bg-slate-50/50 flex flex-col gap-4">
-                    <!-- Messages render here -->
-                </div>
-
-                <!-- Dynamic User Inputs Block -->
-                <div class="p-4 bg-white border-t border-slate-100">
-                    <div id="chatChoiceControls" class="flex flex-wrap gap-2 justify-center">
-                        <!-- Path decision buttons generated here -->
                     </div>
+
+                <div class="p-4 bg-white border-t border-slate-100 min-h-[72px] flex items-center justify-center">
+                    <div id="chatChoiceControls" class="flex flex-wrap gap-2 justify-center">
+                        </div>
                 </div>
 
             </div>
@@ -169,41 +178,36 @@
 
     </main>
 
-    <!-- CUSTOM APP NOTIFICATION COMPONENT -->
     <div id="customNotification" class="fixed bottom-4 right-4 bg-slate-900 text-white text-sm font-semibold px-4 py-3 rounded-xl shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center gap-2">
         <span id="notifIcon">🛑</span>
         <span id="notifText">Notification Message</span>
     </div>
 
-<div id="tourModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
-    <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300 flex flex-col min-h-[400px]">
-        
-        <div class="w-full bg-slate-100 h-2 flex">
-            <div id="tourProgress" class="bg-brandPurple h-full transition-all duration-300" style="width: 20%"></div>
-        </div>
-
-        <div class="p-6 md:p-8 flex-1 flex flex-col justify-between">
-            <div id="tourContent" class="space-y-4">
-                </div>
-
-            <div class="mt-8 pt-4 border-t border-slate-100 flex items-center justify-between">
-                <button onclick="closeTutorial()" class="text-xs font-bold text-slate-400 hover:text-slate-600 tracking-wider uppercase transition-colors">
-                    Skip Tour
-                </button>
-                <div class="flex gap-2">
-                    <button id="tourPrevBtn" onclick="prevTutorialStep()" class="px-4 py-2 border border-slate-200 text-slate-600 font-bold text-sm rounded-full hover:bg-slate-50 transition-all disabled:opacity-40">
-                        Back
+    <div id="tourModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300 flex flex-col min-h-[380px]">
+            <div class="w-full bg-slate-100 h-2 flex">
+                <div id="tourProgress" class="bg-brandPurple h-full transition-all duration-300" style="width: 20%"></div>
+            </div>
+            <div class="p-6 md:p-8 flex-1 flex flex-col justify-between">
+                <div id="tourContent" class="space-y-4">
+                    </div>
+                <div class="mt-8 pt-4 border-t border-slate-100 flex items-center justify-between">
+                    <button onclick="closeTutorial()" class="text-xs font-bold text-slate-400 hover:text-slate-600 tracking-wider uppercase transition-colors">
+                        Skip Tour
                     </button>
-                    <button id="tourNextBtn" onclick="nextTutorialStep()" class="px-5 py-2 bg-brandBlue hover:bg-opacity-90 text-white font-bold text-sm rounded-full transition-all shadow-md">
-                        Next Step
-                    </button>
+                    <div class="flex gap-2">
+                        <button id="tourPrevBtn" onclick="prevTutorialStep()" class="px-4 py-2 border border-slate-200 text-slate-600 font-bold text-sm rounded-full hover:bg-slate-50 transition-all disabled:opacity-40">
+                            Back
+                        </button>
+                        <button id="tourNextBtn" onclick="nextTutorialStep()" class="px-5 py-2 bg-brandBlue hover:bg-opacity-90 text-white font-bold text-sm rounded-full transition-all shadow-md">
+                            Next Step
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-    <!-- MAIN APP STATE & LOGIC PROCESSOR -->
     <script>
         // --- CENTRAL STATE OBJECT ---
         let appState = {
@@ -213,12 +217,27 @@
                 "root": {
                     id: "root",
                     title: "Welcome Greeting",
-                    text: "", // Clear initial text to show Hint Placeholder
+                    text: "",
                     type: "message",
                     branches: []
                 }
-            }
+            },
+            // Persistent Canvas Coordinate Transforms
+            zoom: 1.0,
+            panX: 20,
+            panY: 20,
+            isDragging: false,
+            startX: 0,
+            startY: 0
         };
+
+        // --- GLOBAL APPARATUS INITIALIZATION SETUP ---
+        window.addEventListener('DOMContentLoaded', () => {
+            setupCanvasInteractionHandlers();
+            renderEditor();
+            renderFlowMap();
+            setTimeout(startTutorial, 600);
+        });
 
         // --- TAB SWITCHER LOGIC ---
         function switchTab(tab) {
@@ -228,28 +247,19 @@
             const testPanel = document.getElementById('testPanel');
 
             if (tab === 'build') {
-                buildBtn.className = "px-5 py-2 text-sm font-bold rounded-full transition-all duration-200 bg-brandPurple text-white shadow-sm";
-                testBtn.className = "px-5 py-2 text-sm font-bold rounded-full transition-all duration-200 text-slate-600 hover:text-slate-900";
-                
+                buildBtn.className = "px-8 py-2.5 text-m font-bold rounded-full transition-all duration-200 bg-brandPurple text-white shadow-sm";
+                testBtn.className = "px-8 py-2.5 text-m font-bold rounded-full transition-all duration-200 text-slate-600 hover:text-slate-900";
                 buildPanel.classList.remove('hidden');
                 testPanel.classList.add('hidden');
-                
                 renderEditor();
                 renderFlowMap();
             } else {
-                buildBtn.className = "px-5 py-2 text-sm font-bold rounded-full transition-all duration-200 text-slate-600 hover:text-slate-900";
-                testBtn.className = "px-5 py-2 text-sm font-bold rounded-full transition-all duration-200 bg-brandGreen text-white shadow-sm";
-                
+                buildBtn.className = "px-8 py-2.5 text-m font-bold rounded-full transition-all duration-200 text-slate-600 hover:text-slate-900";
+                testBtn.className = "px-8 py-2.5 text-m font-bold rounded-full transition-all duration-200 bg-brandGreen text-white shadow-sm";
                 buildPanel.classList.add('hidden');
                 testPanel.classList.remove('hidden');
-                
                 resetSimulation();
             }
-        }
-
-        // --- NOTIFICATION BANNER DISMISSAL ---
-        function dismissInstructions() {
-            document.getElementById('instructionBanner').classList.add('hidden');
         }
 
         // --- APP ALERT ENGINE ---
@@ -273,14 +283,12 @@
             renderFlowMap();
         }
 
-        // Escape helper to prevent injection but retain parsed anchor text updates safely
         function escapeHTML(str) {
             const div = document.createElement('div');
             div.innerText = str;
             return div.innerHTML;
         }
 
-        // Regex parsing helper to cleanly detect clickable URLs 
         function linkifyText(escapedStr, speaker) {
             const urlRegex = /(https?:\/\/[^\s]+)/g;
             const linkClass = speaker === 'bot' 
@@ -302,15 +310,10 @@
             renderFlowMap();
         }
 
-        // --- EXPORT AND IMPORT HANDLERS ---
+        // --- EXPORT AND IMPORT PROCESSORS ---
         function exportChatbot() {
             try {
-                // Prepare state packet: reset temporary visual navigation pointers
-                const exportState = {
-                    nodes: appState.nodes
-                };
-                
-                // Construct downable payload
+                const exportState = { nodes: appState.nodes };
                 const dataString = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportState, null, 2));
                 const dummyAnchor = document.createElement('a');
                 dummyAnchor.setAttribute("href", dataString);
@@ -318,11 +321,34 @@
                 document.body.appendChild(dummyAnchor);
                 dummyAnchor.click();
                 dummyAnchor.remove();
-                
                 showNotification("Flow exported successfully!", "✅");
             } catch (err) {
-                showNotification("Could not export. Try again!");
+                showNotification("Could not export data blueprint.");
             }
+        }
+
+        function handleWorkflowSelection(selectElement) {
+            const chosenValue = selectElement.value;
+            if (!chosenValue) return;
+
+            if (chosenValue === "upload") {
+                document.getElementById('importFileInput').click();
+            } else {
+                // Fetch template data payload relative to GitHub repository domain
+                fetch(chosenValue)
+                    .then(response => {
+                        if (!response.ok) throw new Error("Network template file down.");
+                        return response.json();
+                    })
+                    .then(data => {
+                        loadParsedDataPayload(data);
+                        showNotification("Template loaded successfully!", "📋");
+                    })
+                    .catch(err => {
+                        showNotification("Could not fetch remote template workflow.");
+                    });
+            }
+            selectElement.value = ""; // Reset value select marker context
         }
 
         function triggerImport() {
@@ -337,30 +363,30 @@
             fileReader.onload = function(e) {
                 try {
                     const parsedData = JSON.parse(e.target.result);
-                    
-                    // Integrity verification check
-                    if (parsedData && parsedData.nodes && parsedData.nodes["root"]) {
-                        appState.nodes = parsedData.nodes;
-                        appState.activeNodeId = "root";
-                        appState.historyStack = [];
-                        
-                        renderEditor();
-                        renderFlowMap();
-                        showNotification("Flow imported successfully!", "✅");
-                    } else {
-                        showNotification("Incorrect file structure. Needs a 'root' starting point.");
-                    }
+                    loadParsedDataPayload(parsedData);
+                    showNotification("Flow imported successfully!", "✅");
                 } catch (err) {
-                    showNotification("Could not parse file. Make sure it is a valid chatbot JSON.");
+                    showNotification("Invalid JSON schema structure parsing map template.");
                 }
             };
             fileReader.readAsText(file);
-            
-            // Clear value to allow importing the same file consecutive times
             event.target.value = '';
         }
 
-        // --- NODE ADDITION / REMOVAL METHODS ---
+        function loadParsedDataPayload(payload) {
+            if (payload && payload.nodes && payload.nodes["root"]) {
+                appState.nodes = payload.nodes;
+                appState.activeNodeId = "root";
+                appState.historyStack = [];
+                resetZoomPan();
+                renderEditor();
+                renderFlowMap();
+            } else {
+                showNotification("Incorrect workspace structure parsing template.");
+            }
+        }
+
+        // --- NODE ARQUITECTURE METHODS ---
         function addBranch(isNextLinear = false) {
             const currentNode = appState.nodes[appState.activeNodeId];
 
@@ -372,11 +398,10 @@
             const uniqueId = "node_" + Math.random().toString(36).substr(2, 9);
             const branchLabel = isNextLinear ? "Next" : `Choice option ${currentNode.branches.length + 1}`;
 
-            // Create target node with blank text
             appState.nodes[uniqueId] = {
                 id: uniqueId,
                 title: isNextLinear ? `Next Path` : `Response: "${branchLabel}"`,
-                text: "", // Clear initial text to show Hint Placeholder
+                text: "",
                 type: "message",
                 branches: []
             };
@@ -390,49 +415,38 @@
 
             renderEditor();
             renderFlowMap();
-            showNotification(isNextLinear ? "Added sequential step option!" : "Added customizable button branch!");
         }
 
         function removeBranch(index) {
             const currentNode = appState.nodes[appState.activeNodeId];
             const targetId = currentNode.branches[index].targetId;
 
-            // Clean up node and its trace recursively
             delete appState.nodes[targetId];
             currentNode.branches.splice(index, 1);
 
             renderEditor();
             renderFlowMap();
-            showNotification("Branch path successfully deleted.");
         }
 
-        // Convert the active block to an ending point
         function setNodeAsEnd() {
             const currentNode = appState.nodes[appState.activeNodeId];
-            
             if (currentNode.branches.length > 0) {
-                const confirmed = confirm("Are you sure? Converting this node to an End State will delete all its child choices.");
+                const confirmed = confirm("Are you sure? Converting this node to an End node will delete all its child choices.");
                 if (!confirmed) return;
             }
-
             currentNode.branches = [];
             currentNode.type = "end";
-            
             renderEditor();
             renderFlowMap();
-            showNotification("Converted this block to an ending point.", "🛑");
         }
 
         function revertFromEnd() {
             const currentNode = appState.nodes[appState.activeNodeId];
             currentNode.type = "message";
-            
             renderEditor();
             renderFlowMap();
-            showNotification("Restored back to standard message block.");
         }
 
-        // --- NAVIGATION ROUTING ---
         function navigateTo(targetId) {
             appState.historyStack.push(appState.activeNodeId);
             appState.activeNodeId = targetId;
@@ -460,36 +474,23 @@
 
             idLabel.innerText = `ID: ${currentNode.id}`;
             badge.innerText = currentNode.title;
-            if (appState.historyStack.length > 0) {
-                backBtn.classList.remove('hidden');
-            } else {
-                backBtn.classList.add('hidden');
-            }
+            backBtn.classList.toggle('hidden', appState.historyStack.length === 0);
 
-            // Case A: Terminal ending point editor view
             if (currentNode.type === "end") {
                 workspace.innerHTML = `
                     <div class="space-y-6">
-                        <!-- Bot Text Prompt Input Area -->
                         <div class="space-y-2">
                             <label class="block text-sm font-black text-slate-700 uppercase tracking-wider">What the Bot Says (Goodbye Message):</label>
-                            <div class="relative">
-                                <textarea oninput="updateNodeText(this.value)" 
-                                          placeholder="Type a final goodbye message for when the conversation ends (e.g., Oh, well that looks like it's it for now.)..." 
-                                          class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-brandBlue/20 focus:border-brandBlue focus:outline-none transition-all duration-200 text-base font-semibold leading-relaxed min-h-[100px] text-slate-800">${currentNode.text}</textarea>
-                            </div>
+                            <textarea oninput="updateNodeText(this.value)" 
+                                      placeholder="Type a final goodbye message..." 
+                                      class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-brandBlue/20 focus:border-brandBlue focus:outline-none transition-all text-base font-semibold min-h-[120px] text-slate-800">${currentNode.text}</textarea>
                         </div>
-
                         <div class="p-4 bg-rose-50 border border-rose-100 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4">
-                            <div class="flex items-center gap-3">
-                                <span class="text-2xl">🛑</span>
-                                <div>
-                                    <h4 class="font-bold text-rose-900 text-sm">This is an Ending Block</h4>
-                                    <p class="text-xs text-rose-700">The conversation ends automatically after this message is displayed in the simulator.</p>
-                                </div>
+                            <div class="text-xs text-rose-700 font-medium">
+                                <strong>Ending Block:</strong> The chat simulation will automatically stop and present a restart flow sequence here.
                             </div>
                             <button onclick="revertFromEnd()" class="px-4 py-2 bg-white hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold rounded-lg text-xs transition-colors shadow-sm whitespace-nowrap">
-                                Convert to Regular Block
+                                Restore to regular block
                             </button>
                         </div>
                     </div>
@@ -497,40 +498,36 @@
                 return;
             }
 
-            // Case B: Standard Message Node Editor
             let branchesListHTML = "";
             if (currentNode.branches.length === 0) {
                 branchesListHTML = `
-                    <div class="text-center py-8 border-2 border-dashed border-slate-100 rounded-xl bg-slate-50/50">
-                        <p class="text-xs text-slate-400 mt-1">Use the buttons below to create branches for users to click.</p>
+                    <div class="text-center py-6 border-2 border-dashed border-slate-100 rounded-xl bg-slate-50/50 text-xs text-slate-400 font-semibold">
+                        Create custom path branching options using the actions toolbox interface controls below.
                     </div>
                 `;
             } else {
                 currentNode.branches.forEach((branch, index) => {
                     const isNext = branch.isNext;
-                    
                     let borderClass = isNext ? 'border-l-4 border-l-brandPurple' : 'border-l-4 border-l-brandGreen';
-                    let labelType = isNext ? '[Next Step]' : '[Choice]';
+                    let labelType = isNext ? '[Next Step]' : '[Choice Option]';
 
                     branchesListHTML += `
-                        <div class="flex flex-col md:flex-row items-stretch md:items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100 transition-all ${borderClass}">
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100 ${borderClass}">
                             <div class="flex items-center gap-2 flex-1">
-                                <span class="text-xs font-bold text-slate-400 uppercase mr-1">${labelType}</span>
+                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider">${labelType}</span>
                                 <input type="text" 
                                        value="${branch.text}" 
                                        oninput="updateBranchLabel(${index}, this.value)" 
-                                       placeholder="Enter choice text..." 
+                                       placeholder="Label text..." 
                                        class="flex-1 bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-slate-200 text-slate-800"
                                        ${isNext ? 'disabled' : ''}>
                             </div>
                             <div class="flex items-center gap-2 justify-end">
-                                <button onclick="navigateTo('${branch.targetId}')" class="px-3 py-1.5 bg-brandBlue text-white hover:bg-opacity-90 font-bold text-xs rounded-lg transition-colors flex items-center gap-1">
-                                    Go to Node
+                                <button onclick="navigateTo('${branch.targetId}')" class="px-3 py-1.5 bg-brandBlue text-white hover:bg-opacity-90 font-bold text-xs rounded-lg transition-colors shadow-sm">
+                                    Edit Block
                                 </button>
-                                <button onclick="removeBranch(${index})" class="p-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-lg transition-colors" title="Delete path">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
+                                <button onclick="removeBranch(${index})" class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                                 </button>
                             </div>
                         </div>
@@ -538,41 +535,28 @@
                 });
             }
 
-            // Customize textarea placeholder based on node context
-            let workspacePlaceholder = "Type what the chatbot says at this step of the conversation...";
-            if (currentNode.id === "root") {
-                workspacePlaceholder = "Type what your chatbot says to welcome users (e.g., Hi! Welcome to my chatbot.)";
-            }
-
             workspace.innerHTML = `
                 <div class="space-y-6">
-                    <!-- Bot Text Prompt Input Area -->
                     <div class="space-y-2">
                         <label class="block text-sm font-black text-slate-700 uppercase tracking-wider">What the Bot Says:</label>
-                        <div class="relative">
-                            <textarea oninput="updateNodeText(this.value)" 
-                                      placeholder="${workspacePlaceholder}" 
-                                      class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-brandBlue/20 focus:border-brandBlue focus:outline-none transition-all duration-200 text-base font-semibold leading-relaxed min-h-[100px] text-slate-800">${currentNode.text}</textarea>
-                        </div>
+                        <textarea oninput="updateNodeText(this.value)" 
+                                  placeholder="${currentNode.id === 'root' ? 'Type your welcome greeting message...' : 'Type what the bot says at this step...'}" 
+                                  class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-brandBlue/20 focus:border-brandBlue focus:outline-none transition-all text-base font-semibold min-h-[120px] text-slate-800">${currentNode.text}</textarea>
                     </div>
 
-                    <!-- Flow Branching List Options -->
                     <div class="space-y-3">
-                        <label class="block text-sm font-black text-slate-700 uppercase tracking-wider">Choices & Continuation Actions:</label>
-                        <div class="space-y-2">
-                            ${branchesListHTML}
-                        </div>
+                        <label class="block text-sm font-black text-slate-700 uppercase tracking-wider">Choices & Navigation Pathways:</label>
+                        <div class="space-y-2">${branchesListHTML}</div>
                     </div>
 
-                    <!-- Actions Toolbox Controls -->
-                    <div class="pt-6 border-t border-slate-100 flex flex-wrap gap-3">
-                        <button onclick="addBranch(false)" class="flex-1 min-w-[180px] py-3 px-4 border-2 border-dashed border-brandGreen/40 hover:border-brandGreen bg-white hover:bg-emerald-50/25 text-brandGreen font-bold rounded-xl text-sm transition-all flex items-center justify-center gap-2">
+                    <div class="pt-4 border-t border-slate-100 flex flex-wrap gap-2">
+                        <button onclick="addBranch(false)" class="flex-1 min-w-[140px] py-2.5 px-3 border border-brandGreen/40 hover:border-brandGreen bg-emerald-50/20 text-brandGreen font-bold rounded-xl text-sm transition-all">
                             + Add User Response
                         </button>
-                        <button onclick="addBranch(true)" class="flex-1 min-w-[180px] py-3 px-4 border-2 border-dashed border-brandPurple/40 hover:border-brandPurple bg-white hover:bg-pink-50/25 text-brandPurple font-bold rounded-xl text-sm transition-all flex items-center justify-center gap-2">
-                            Add "Next ↪"
+                        <button onclick="addBranch(true)" class="flex-1 min-w-[140px] py-2.5 px-3 border border-brandPurple/40 hover:border-brandPurple bg-pink-50/20 text-brandPurple font-bold rounded-xl text-sm transition-all">
+                            Add "Next ↪️"
                         </button>
-                        <button onclick="setNodeAsEnd()" class="flex-1 min-w-[180px] py-3 px-4 border-2 border-dashed border-rose-300 hover:border-rose-600 bg-white hover:bg-rose-50/25 text-rose-600 hover:text-rose-800 font-bold rounded-xl text-sm transition-all flex items-center justify-center gap-2">
+                        <button onclick="setNodeAsEnd()" class="flex-1 min-w-[140px] py-2.5 px-3 border border-rose-200 hover:border-rose-400 bg-rose-50/20 text-rose-600 font-bold rounded-xl text-sm transition-all">
                             🛑 End Conversation
                         </button>
                     </div>
@@ -581,18 +565,77 @@
         }
 
         // ==========================================
-        // --- TRUE VISUAL FLOWCHART MAP ENGINE ---
+        // --- NATIVE ZOOM & PAN CONTROL MODULE ---
+        // ==========================================
+        function setupCanvasInteractionHandlers() {
+            const container = document.getElementById('flowMapContainer');
+            
+            container.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const zoomFactor = 0.08;
+                if (e.deltaY < 0) {
+                    appState.zoom = Math.min(2.0, appState.zoom + zoomFactor);
+                } else {
+                    appState.zoom = Math.max(0.4, appState.zoom - zoomFactor);
+                }
+                applyTransformLayoutProperties();
+            }, { passive: false });
+
+            container.addEventListener('mousedown', (e) => {
+                if(e.target.closest('button')) return; // Allow node buttons to fire click events cleanly
+                appState.isDragging = true;
+                appState.startX = e.clientX - appState.panX;
+                appState.startY = e.clientY - appState.panY;
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!appState.isDragging) return;
+                appState.panX = e.clientX - appState.startX;
+                appState.panY = e.clientY - appState.startY;
+                applyTransformLayoutProperties();
+            });
+
+            window.addEventListener('mouseup', () => {
+                appState.isDragging = false;
+            });
+        }
+
+        function applyTransformLayoutProperties() {
+            const canvas = document.getElementById('flowCanvas');
+            if(canvas) {
+                canvas.style.transform = `translate(${appState.panX}px, ${appState.panY}px) scale(${appState.zoom})`;
+            }
+        }
+
+        function resetZoomPan() {
+            appState.zoom = 1.0;
+            appState.panX = 20;
+            appState.panY = 20;
+            applyTransformLayoutProperties();
+        }
+
+        // ==========================================
+        // --- VISUAL FLOWCHART LAYOUT PROCESSOR ---
         // ==========================================
         function renderFlowMap() {
-            const container = document.getElementById('flowMapList');
-            if (!container) return;
-            container.innerHTML = '';
+            const nodesContainer = document.getElementById('flowNodesContainer');
+            const svgElement = document.getElementById('flowSVG');
+            if (!nodesContainer || !svgElement) return;
+
+            nodesContainer.innerHTML = '';
+            // Clear existing connector tracks cleanly
+            svgElement.innerHTML = `
+                <defs>
+                    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                        <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#94A3B8"/>
+                    </marker>
+                </defs>
+            `;
 
             let positions = {};
             let leafCount = 0;
             let maxDepth = 0;
 
-            // Recurse from root to map coordinates dynamically
             function computeLayout(nodeId, depth) {
                 const node = appState.nodes[nodeId];
                 if (!node) return;
@@ -613,100 +656,69 @@
                 }
             }
 
-            // Begin calculation setup
             computeLayout("root", 0);
 
-            // Node scaling properties for layout mapping
-            const nodeWidth = 100;
-            const nodeHeight = 44;
-            const hGap = 110;
-            const vGap = 80;
+            const nodeWidth = 110;
+            const nodeHeight = 46;
+            const hGap = 130;
+            const vGap = 90;
 
-            const canvasWidth = Math.max(container.clientWidth - 16, leafCount * hGap);
-            const canvasHeight = Math.max(container.clientHeight - 16, (maxDepth + 1.5) * vGap);
+            const baseWidth = Math.max(800, leafCount * hGap + 100);
+            const baseHeight = Math.max(600, (maxDepth + 2) * vGap);
 
-            // Flowchart Outer Scrolling Container
-            const mapScrollWrapper = document.createElement('div');
-            mapScrollWrapper.className = "w-full h-full overflow-auto bg-slate-50 border border-slate-100 rounded-xl relative p-4";
-            
-            const flowCanvas = document.createElement('div');
-            flowCanvas.className = "relative";
-            flowCanvas.style.width = `${canvasWidth}px`;
-            flowCanvas.style.height = `${canvasHeight}px`;
+            const canvas = document.getElementById('flowCanvas');
+            canvas.style.width = `${baseWidth}px`;
+            canvas.style.height = `${baseHeight}px`;
 
-            // SVG Backplane overlay
-            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-            svg.style.position = "absolute";
-            svg.style.top = "0";
-            svg.style.left = "0";
-            svg.style.width = "100%";
-            svg.style.height = "100%";
-            svg.style.pointerEvents = "none";
-            svg.style.zIndex = "5";
-            svg.innerHTML = `
-                <defs>
-                    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-                        <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#94A3B8"/>
-                    </marker>
-                </defs>
-            `;
-            flowCanvas.appendChild(svg);
-
-            // Auto center/horizontally space layout steps
-            const actualHGap = leafCount > 1 ? (canvasWidth - nodeWidth) / (leafCount - 1) : 0;
-            const startX = leafCount > 1 ? 0 : (canvasWidth - nodeWidth) / 2;
-
-            // Draw HTML Interactive Nodes
+            // Draw HTML Node Coordinates Layout
             Object.keys(positions).forEach(nodeId => {
                 const pos = positions[nodeId];
                 const node = appState.nodes[nodeId];
                 if (!node) return;
 
-                const x = startX + pos.order * actualHGap;
-                const y = 10 + pos.depth * vGap;
+                const x = pos.order * hGap + 30;
+                const y = pos.depth * vGap + 30;
 
-                // Track midpoints for rendering connector lines
                 pos.actualX = x + nodeWidth / 2;
                 pos.actualY = y + nodeHeight / 2;
 
                 const nodeBtn = document.createElement('button');
-                nodeBtn.className = "absolute z-10 px-2 py-1 text-center text-[10px] font-bold rounded-lg border-2 transition-all duration-200 shadow-sm flex flex-col items-center justify-center hover:shadow-md";
+                nodeBtn.className = "absolute pointer-events-auto px-2 py-1 text-center text-[10px] font-bold rounded-xl border-2 transition-all duration-150 shadow-sm flex flex-col items-center justify-center hover:shadow-md";
                 nodeBtn.style.width = `${nodeWidth}px`;
                 nodeBtn.style.height = `${nodeHeight}px`;
                 nodeBtn.style.left = `${x}px`;
                 nodeBtn.style.top = `${y}px`;
 
-                // Distinct colors for visual clarity
                 let colors = "bg-white border-slate-200 text-slate-700 hover:border-slate-300";
                 if (nodeId === appState.activeNodeId) {
-                    colors = "bg-pink-50 border-brandPurple text-brandPurple ring-2 ring-pink-100";
+                    colors = "bg-pink-50 border-brandPurple text-brandPurple ring-4 ring-pink-100";
                 } else if (node.type === "end") {
                     colors = "bg-rose-50 border-rose-300 text-rose-700 hover:bg-rose-100/50";
                 } else if (nodeId === "root") {
                     colors = "bg-blue-50 border-brandBlue text-brandBlue hover:bg-blue-100/50";
                 }
-
                 nodeBtn.className += ` ${colors}`;
 
-                let headerLabel = nodeId === "root" ? "Start" : node.type === "end" ? "End 🛑" : "Step";
-                let truncatedTitle = node.title.length > 15 ? node.title.substring(0, 12) + "..." : node.title;
+                let headerLabel = nodeId === "root" ? "Start" : node.type === "end" ? "End State" : "Step";
+                let displayTitle = node.title.length > 14 ? node.title.substring(0, 12) + "..." : node.title;
 
                 nodeBtn.innerHTML = `
                     <span class="text-[8px] font-black uppercase tracking-wider text-slate-400 leading-none">${headerLabel}</span>
-                    <span class="truncate w-full block mt-0.5 text-slate-700">${nodeId === 'root' ? 'Greeting' : truncatedTitle}</span>
+                    <span class="truncate w-full block mt-0.5">${nodeId === 'root' ? 'Greeting' : displayTitle}</span>
                 `;
 
-                nodeBtn.onclick = () => {
+                nodeBtn.onclick = (e) => {
+                    e.stopPropagation();
                     appState.historyStack = [];
                     appState.activeNodeId = nodeId;
                     renderEditor();
                     renderFlowMap();
                 };
 
-                flowCanvas.appendChild(nodeBtn);
+                nodesContainer.appendChild(nodeBtn);
             });
 
-            // Draw SVG connectors
+            // Draw Connection Path Vectors
             Object.keys(positions).forEach(nodeId => {
                 const node = appState.nodes[nodeId];
                 if (!node || node.type === "end") return;
@@ -720,10 +732,10 @@
                     const x1 = parentPos.actualX;
                     const y1 = parentPos.actualY + (nodeHeight / 2);
                     const x2 = childPos.actualX;
-                    const y2 = childPos.actualY - (nodeHeight / 2);
+                    const y2 = childPos.childY ? childPos.childY : childPos.actualY - (nodeHeight / 2);
 
                     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                    const ctrlDist = Math.min(30, Math.abs(y2 - y1) * 0.5);
+                    const ctrlDist = Math.min(40, Math.abs(y2 - y1) * 0.5);
                     const d = `M ${x1} ${y1} C ${x1} ${y1 + ctrlDist}, ${x2} ${y2 - ctrlDist}, ${x2} ${y2}`;
 
                     path.setAttribute("d", d);
@@ -732,20 +744,21 @@
                     path.setAttribute("stroke-width", "2");
                     path.setAttribute("marker-end", "url(#arrow)");
 
-                    svg.appendChild(path);
+                    svgElement.appendChild(path);
                 });
             });
 
-            mapScrollWrapper.appendChild(flowCanvas);
-            container.appendChild(mapScrollWrapper);
+            applyTransformLayoutProperties();
         }
 
         // ==========================================
         // --- CHAT SIMULATOR PROCESSOR LOGIC ---
         // ==========================================
         let simActiveNodeId = "root";
+        let simulatorTimeoutTracker = null;
 
         function resetSimulation() {
+            if (simulatorTimeoutTracker) clearTimeout(simulatorTimeoutTracker);
             const chatDisplay = document.getElementById('chatDisplay');
             chatDisplay.innerHTML = '';
             simActiveNodeId = "root";
@@ -760,50 +773,56 @@
             const node = appState.nodes[simActiveNodeId];
             if (!node) return;
 
-            // Deliver bot response bubble with clickable URL checking
-            // Fall back to clean descriptive placeholder sentences in chat bubbles if user left node empty
             let nodeSpeech = node.text.trim();
             if (!nodeSpeech) {
-                if (node.id === "root") {
-                    nodeSpeech = "Hi! Welcome to my chatbot.";
-                } else if (node.type === "end") {
-                    nodeSpeech = "Oh, well that looks like it's it for now.";
-                } else {
-                    nodeSpeech = "Here is the next step! Update this text to write what your bot says next.";
-                }
+                if (node.id === "root") nodeSpeech = "Hi! Welcome to my chatbot.";
+                else if (node.type === "end") nodeSpeech = "The conversation has ended here.";
+                else nodeSpeech = "Here is the next step space.";
             }
 
             appendMessageBubble(nodeSpeech, 'bot');
 
-            // Wait until goodbye bubble is drawn before offering reset sequence
             if (node.type === "end") {
                 appendRestartButton();
                 return;
             }
 
             if (node.branches.length === 0) {
-                appendMessageBubble("This is the end of my story branches! Tap the restart button to try a different direction.", "bot");
                 appendRestartButton();
                 return;
             }
 
+            // CHECK FOR AUTOMATED SEQUENTIAL NEXT STEPS
+            const nextContinuationBranch = node.branches.find(b => b.isNext);
+            if (nextContinuationBranch) {
+                // Spawn animated inline typing loader block indicator
+                const typingBlock = document.createElement('div');
+                typingBlock.id = "simTypingIndicator";
+                typingBlock.className = "flex justify-start items-center gap-1.5 px-4 py-2 text-slate-400 text-xs font-semibold italic animate-pulse";
+                typingBlock.innerHTML = `<span>Bot is typing</span><span class="w-1 h-1 rounded-full bg-slate-400 animate-bounce"></span>`;
+                chatDisplay.appendChild(typingBlock);
+                chatDisplay.scrollTop = chatDisplay.scrollHeight;
+
+                simulatorTimeoutTracker = setTimeout(() => {
+                    const indicator = document.getElementById('simTypingIndicator');
+                    if (indicator) indicator.remove();
+                    simActiveNodeId = nextContinuationBranch.targetId;
+                    runSimulationStep();
+                }, 1000);
+                return;
+            }
+
+            // RENDER STANDARD INTERACTIVE CHOICE SELECTION BUTTONS
             node.branches.forEach(branch => {
                 const btn = document.createElement('button');
-                
-                if (branch.isNext) {
-                    btn.className = "px-4 py-2 bg-brandPurple text-white hover:bg-opacity-90 rounded-full font-bold text-sm transition-all shadow-sm flex items-center gap-1.5";
-                    btn.innerHTML = `${branch.text}`;
-                } else {
-                    btn.className = "px-4 py-2 bg-brandGreen text-white hover:bg-opacity-90 rounded-full font-bold text-sm transition-all shadow-sm";
-                    btn.innerText = branch.text;
-                }
+                btn.className = "px-5 py-2 bg-brandGreen text-white hover:bg-opacity-90 rounded-full font-bold text-xs transition-all shadow-sm";
+                btn.innerText = branch.text;
 
                 btn.onclick = () => {
                     appendMessageBubble(branch.text, 'user');
                     simActiveNodeId = branch.targetId;
-
                     choicePanel.innerHTML = '';
-                    setTimeout(runSimulationStep, 450);
+                    simulatorTimeoutTracker = setTimeout(runSimulationStep, 400);
                 };
 
                 choicePanel.appendChild(btn);
@@ -814,7 +833,6 @@
             const display = document.getElementById('chatDisplay');
             const wrapper = document.createElement('div');
             
-            // Safe escape first, then linkify raw URL pointers
             const escaped = escapeHTML(text);
             const formattedText = linkifyText(escaped, speaker);
 
@@ -841,45 +859,38 @@
         function appendRestartButton() {
             const choicePanel = document.getElementById('chatChoiceControls');
             const restartBtn = document.createElement('button');
-            restartBtn.className = "px-5 py-2.5 bg-slate-700 text-white hover:bg-slate-800 rounded-full font-bold text-sm transition-all shadow-sm flex items-center gap-2";
-            restartBtn.innerHTML = "Start Conversation Over";
+            restartBtn.className = "px-6 py-2.5 bg-slate-700 text-white hover:bg-slate-800 rounded-full font-bold text-xs transition-all shadow-sm";
+            restartBtn.innerText = "Start Conversation Over";
             restartBtn.onclick = resetSimulation;
             choicePanel.appendChild(restartBtn);
         }
 
-        // Re-draw map layout dynamically on browser window resizing
-        window.addEventListener('resize', renderFlowMap);
-
-        // --- APP INITIAL START TRIGGER ---
-        renderEditor();
-        renderFlowMap();
-
-// --- MULTI-STEP TUTORIAL ONBOARDING ENGINE ---
+        // --- MULTI-STEP TUTORIAL ONBOARDING ENGINE ---
         let currentTourStep = 0;
         const tourSteps = [
             {
-                title: "🤖 Welcome to Chatbot Playground!",
+                title: "Welcome to Chatbot Playground!",
                 body: "This playground lets you design, map, and test your very own choice-driven chatbot without writing a single line of code! Let's take a quick 1-minute tour to see how it works.",
                 tab: "build"
             },
             {
                 title: "Two Ways to Work: Build vs. Test",
-                body: "Switch between your work areas using the toggle in the upper right:<br><br>• <strong>🛠️ Build Mode:</strong> Lay out your conversational choices using an interactive card editor and watch a live flowchart compile your logic.<br>• <strong>💬 Test Mode:</strong> Interact with your chatbot live in an app simulation just like a real user would!",
+                body: "Switch between your work areas using the centered toggle mode bar right above your workspace columns: <br><br>• <strong>🛠️ Build Mode:</strong> Wire your logic architecture scripts using cards and an auto-updating interactive map canvas layout.<br>• <strong>💬 Test Mode:</strong> Jump inside a phone simulation sandbox to chat with your bot live!",
                 tab: "build"
             },
             {
                 title: "Your Starting Line: Welcome Greeting",
-                body: "Every great conversation needs an icebreaker. Your bot starts at the <strong>Welcome Greeting</strong> block. Write your opening script into the 'What the Bot Says' prompt area. This is the first thing users see when your bot wakes up.<br><br>Use the <strong>Flowchart Map</strong> to click any node and hop directly into its editor.",
+                body: "Every conversation starts here. Write your opening script into the 'What the Bot Says' prompt input area. This is the first sequence users read when your simulation boots up.",
                 tab: "build"
             },
             {
                 title: "Branching Out with Action Buttons",
-                body: "Control how paths unfold using the toolbox at the bottom of your block editor:<br><br>• 🟢 <strong class='text-brandGreen'>Add User Response:</strong> Adds user response branches (like 'Yes' or 'No') that your user can select.<br>• 🟣 <strong class='text-brandPurple'>Add 'Next':</strong> Continues the conversation when you don't need the user to make a choice.<br>• 🔴 <strong class='text-rose-600'>End Conversation:</strong> Tells the simulator to stop and deliver a final goodbye message.",
+                body: "Control how narrative paths unfold using the toolbox at the bottom of the card workspace editor:<br><br>• <strong class=\"text-brandGreen\">+ Add User Response:</strong> Spawns user response options (like 'Yes' or 'No') to split paths.<br>• <strong class=\"text-brandPurple\">Add \"Next ↪️\":</strong> Generates consecutive continuous statements without requiring input actions.<br>• <strong class=\"text-rose-600\">🛑 End Conversation:</strong> Stops dialogue paths and triggers a conversation reset.",
                 tab: "build"
             },
             {
-                title: "Simulate and Export Your Masterpiece",
-                body: "When you're happy with your logic, click <strong>Export File</strong> to download your chatbot data. You can <strong>Import</strong> it anytime later to keep refining your build!",
+                title: "Simulate and Export Your Layouts",
+                body: "As your canvas workspace grows, scroll to zoom in/out and click-and-drag empty grid spaces to pan around your flowchart. Once you are finished, click <strong>Export File</strong> to save your JSON data configuration directly to disk!",
                 tab: "build"
             }
         ];
@@ -902,34 +913,28 @@
             setTimeout(() => {
                 modal.classList.add('hidden');
             }, 300);
-            // Re-anchor user back to build page cleanly on finish
             switchTab('build'); 
         }
 
         function renderTourStep() {
             const stepData = tourSteps[currentTourStep];
-            
-            // Switch tab contexts seamlessly if the step highlights a certain panel
             switchTab(stepData.tab);
 
-            // Update Text Content
             document.getElementById('tourContent').innerHTML = `
                 <h3 class="text-xl font-black text-brandBlue tracking-wide leading-snug">${stepData.title}</h3>
                 <p class="text-sm text-slate-600 font-medium leading-relaxed">${stepData.body}</p>
             `;
 
-            // Calculate Progress Bar
             const progressPct = ((currentTourStep + 1) / tourSteps.length) * 100;
             document.getElementById('tourProgress').style.width = `${progressPct}%`;
 
-            // Handle button transformations
             const prevBtn = document.getElementById('tourPrevBtn');
             const nextBtn = document.getElementById('tourNextBtn');
 
             prevBtn.disabled = currentTourStep === 0;
 
             if (currentTourStep === tourSteps.length - 1) {
-                nextBtn.innerText = "Let's Build! ✨";
+                nextBtn.innerText = "Let's Build!";
                 nextBtn.className = "px-5 py-2 bg-brandGreen hover:bg-opacity-90 text-white font-bold text-sm rounded-full transition-all shadow-md";
             } else {
                 nextBtn.innerText = "Next";
@@ -953,11 +958,8 @@
             }
         }
 
-        // AUTO-TRIGGER THE TOUR ON PAGE INITIALIZATION
-        window.addEventListener('DOMContentLoaded', () => {
-            // Tiny timeout allows Tailwind layout layers to render cleanly first
-            setTimeout(startTutorial, 600); 
-        });
+        // Window resize binding updates map layouts matching layouts
+        window.addEventListener('resize', renderFlowMap);
     </script>
 </body>
 </html>
