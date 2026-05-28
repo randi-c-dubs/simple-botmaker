@@ -1,0 +1,252 @@
+{
+  "nodes": {
+    "root": {
+      "id": "root",
+      "title": "Turn 1: The Casual Hook",
+      "text": "Let's figure out what's going on with you today. Pick the word that hits closest to your energy right now.",
+      "type": "message",
+      "branches": [
+        { "text": "Overwhelmed", "targetId": "node_t2_overwhelmed", "isNext": false, "isEnd": false },
+        { "text": "Bored / Stuck", "targetId": "node_t2_bored", "isNext": false, "isEnd": false },
+        { "text": "Fine / Doing good", "targetId": "node_t2_fine", "isNext": false, "isEnd": false },
+        { "text": "Something else", "targetId": "node_t2_pivot_1", "isNext": false, "isEnd": false }
+      ]
+    },
+    "node_t2_overwhelmed": {
+      "id": "node_t2_overwhelmed",
+      "title": "Turn 2: Overwhelmed Validation",
+      "text": "That's a lot to deal with. Usually, when things feel that heavy, it's because you're trying to manage a bunch of expectations that shouldn't even be yours to fix.",
+      "type": "message",
+      "branches": [
+        { "text": "Spot on", "targetId": "node_t3_drift_heavy", "isNext": false, "isEnd": false },
+        { "text": "Not really", "targetId": "node_t3_drift_alt", "isNext": false, "isEnd": false }
+      ]
+    },
+    "node_t2_bored": {
+      "id": "node_t2_bored",
+      "title": "Turn 2: Bored Validation",
+      "text": "That's a weirdly frustrating space to be in. People think boredom is peaceful, but it usually means you're completely drained by routines that don't actually matter to you.",
+      "type": "message",
+      "branches": [
+        { "text": "I feel that", "targetId": "node_t3_drift_light", "isNext": false, "isEnd": false },
+        { "text": "Not quite it", "targetId": "node_t3_drift_alt", "isNext": false, "isEnd": false }
+      ]
+    },
+    "node_t2_fine": {
+      "id": "node_t2_fine",
+      "title": "Turn 2: Fine Validation",
+      "text": "Glad to hear it. Honestly, having a stable mind state is great—but sometimes, maintaining that 'fine' status takes a lot of quiet effort to keep background distractions away. You know?",
+      "type": "message",
+      "branches": [
+        { "text": "Definitely", "targetId": "node_t3_drift_light", "isNext": false, "isEnd": false },
+        { "text": "Actually, no", "targetId": "node_t3_drift_heavy", "isNext": false, "isEnd": false }
+      ]
+    },
+    "node_t2_pivot_1": {
+      "id": "node_t2_pivot_1",
+      "title": "Turn 2: Pivot Hook",
+      "text": "Fair enough. Human emotions rarely fit into neat little labels anyway. Let's look past the specific words and focus on where your mind goes when it runs free.",
+      "type": "message",
+      "branches": [
+        { "text": "Next", "targetId": "node_t3_drift_alt", "isNext": true, "isEnd": false }
+      ]
+    },
+    "node_t3_drift_heavy": {
+      "id": "node_t3_drift_heavy",
+      "title": "Turn 3: Heavy Drift Query",
+      "text": "When you finally get a quiet second alone with that weight, where does your brain usually end up drifting?",
+      "type": "message",
+      "branches": [
+        { "text": "Worrying about what's next", "targetId": "node_t4_future", "isNext": false, "isEnd": false },
+        { "text": "Back to past mistakes", "targetId": "node_t4_past", "isNext": false, "isEnd": false }
+      ]
+    },
+    "node_t3_drift_light": {
+      "id": "node_t3_drift_light",
+      "title": "Turn 3: Light Drift Query",
+      "text": "When you're stuck in those everyday mindless routines, what is your brain actually doing to pass the time?",
+      "type": "message",
+      "branches": [
+        { "text": "Daydreaming about what's next", "targetId": "node_t4_future", "isNext": false, "isEnd": false },
+        { "text": "Overthinking old interactions", "targetId": "node_t4_past", "isNext": false, "isEnd": false }
+      ]
+    },
+    "node_t3_drift_alt": {
+      "id": "node_t3_drift_alt",
+      "title": "Turn 3: Alternate Drift Query",
+      "text": "Thanks for keeping me honest. Let's re-frame it. When you're completely alone with your thoughts, are you mostly trying to map out tomorrow, or parsing through yesterday?",
+      "type": "message",
+      "branches": [
+        { "text": "Mapping out tomorrow", "targetId": "node_t4_future", "isNext": false, "isEnd": false },
+        { "text": "Parsing through yesterday", "targetId": "node_t4_past", "isNext": false, "isEnd": false }
+      ]
+    },
+    "node_t4_future": {
+      "id": "node_t4_future",
+      "title": "Turn 4: Future Reflection",
+      "text": "It sounds like you're constantly trying to solve problems that haven't even happened yet—stressing over an unwritten script. Let's find out where that script is set.",
+      "type": "message",
+      "branches": [
+        { "text": "Keep going", "targetId": "node_t5_pressure_source", "isNext": true, "isEnd": false }
+      ]
+    },
+    "node_t4_past": {
+      "id": "node_t4_past",
+      "title": "Turn 4: Past Reflection",
+      "text": "It's exhausting to look backward. You keep reviewing old footage, playing back choices, and wishing you could rewrite a scene that has already finished rolling.",
+      "type": "message",
+      "branches": [
+        { "text": "Keep going", "targetId": "node_t5_pressure_source", "isNext": true, "isEnd": false }
+      ]
+    },
+    "node_t5_pressure_source": {
+      "id": "node_t5_pressure_source",
+      "title": "Turn 5: Main Pressure Query",
+      "text": "Look at the main stage of your life right now. Where is the absolute loudest background noise coming from?",
+      "type": "message",
+      "branches": [
+        { "text": "School and grades", "targetId": "node_t6_school", "isNext": false, "isEnd": false },
+        { "text": "Friends and fitting in", "targetId": "node_t6_social", "isNext": false, "isEnd": false },
+        { "text": "Something else", "targetId": "node_t6_pivot_2", "isNext": false, "isEnd": false }
+      ]
+    },
+    "node_t6_school": {
+      "id": "node_t6_school",
+      "title": "Turn 6: Academic Path",
+      "text": "Yeah, school performance weight. But be honest—is it strictly the grades, or is social stress compounding that academic pressure?",
+      "type": "message",
+      "branches": [
+        { "text": "Honestly, it's both", "targetId": "node_t7_both_tracks", "isNext": false, "isEnd": false },
+        { "text": "No, just school", "targetId": "node_t7_school_only", "isNext": false, "isEnd": false }
+      ]
+    },
+    "node_t6_social": {
+      "id": "node_t6_social",
+      "title": "Turn 6: Social Path",
+      "text": "Social friction drains so much energy. When friend dynamics get messy, does that anxiety start dragging down your school focus too?",
+      "type": "message",
+      "branches": [
+        { "text": "Yeah, it affects both", "targetId": "node_t7_both_tracks", "isNext": false, "isEnd": false },
+        { "text": "No, just friend stuff", "targetId": "node_t7_social_only", "isNext": false, "isEnd": false }
+      ]
+    },
+    "node_t6_pivot_2": {
+      "id": "node_t6_pivot_2",
+      "title": "Turn 6: Second Pivot",
+      "text": "Fair enough. Strict categories fail when things get complicated. Let's track the footprint instead: when stress hits, does it end up souring your schoolwork and your social ties at the same time?",
+      "type": "message",
+      "branches": [
+        { "text": "Yes, both suffer", "targetId": "node_t7_both_tracks", "isNext": false, "isEnd": false },
+        { "text": "Not really", "targetId": "node_t7_internal_only", "isNext": false, "isEnd": false }
+      ]
+    },
+    "node_t7_both_tracks": {
+      "id": "node_t7_both_tracks",
+      "title": "Turn 7: Both Validation",
+      "text": "That's a brutal crossfire. When you're dealing with academic expectations and social navigation all at once, your mind never gets a safe zone to relax.",
+      "type": "message",
+      "branches": [
+        { "text": "That's exactly it", "targetId": "node_t8_behavior_query", "isNext": false, "isEnd": false },
+        { "text": "Doesn't fit me", "targetId": "node_t7_school_only", "isNext": false, "isEnd": false }
+      ]
+    },
+    "node_t7_school_only": {
+      "id": "node_t7_school_only",
+      "title": "Turn 7: School Validation",
+      "text": "So it's purely a performance trap. You're treating your value as a person like a GPA scorecard, working for an internal boss that is never satisfied.",
+      "type": "message",
+      "branches": [
+        { "text": "That's tracking", "targetId": "node_t8_behavior_query", "isNext": false, "isEnd": false },
+        { "text": "Not quite right", "targetId": "node_t7_internal_only", "isNext": false, "isEnd": false }
+      ]
+    },
+    "node_t7_social_only": {
+      "id": "node_t7_social_only",
+      "title": "Turn 7: Social Validation",
+      "text": "So the grades are fine, but the connections hurt. It feels like you're constantly auditioning for a role in your own group, wearing a mask just to stay safe.",
+      "type": "message",
+      "branches": [
+        { "text": "True for me", "targetId": "node_t8_behavior_query", "isNext": false, "isEnd": false },
+        { "text": "Misunderstanding me", "targetId": "node_t7_internal_only", "isNext": false, "isEnd": false }
+      ]
+    },
+    "node_t7_internal_only": {
+      "id": "node_t7_internal_only",
+      "title": "Turn 7: Internal Validation",
+      "text": "Interesting. So the external stuff is stable, but there's an internal restlessness. A quiet friction that stays active even when everything looks fine on paper.",
+      "type": "message",
+      "branches": [
+        { "text": "Continue", "targetId": "node_t8_behavior_query", "isNext": true, "isEnd": false }
+      ]
+    },
+    "node_t8_behavior_query": {
+      "id": "node_t8_behavior_query",
+      "title": "Turn 8: Behavioral Mechanism",
+      "text": "When that underlying friction builds up, how does it physically manifest in your day-to-day routine?",
+      "type": "message",
+      "branches": [
+        { "text": "I completely freeze and procrastinate", "targetId": "node_t9_freeze", "isNext": false, "isEnd": false },
+        { "text": "I overwork until I crash", "targetId": "node_t9_crash", "isNext": false, "isEnd": false }
+      ]
+    },
+    "node_t9_freeze": {
+      "id": "node_t9_freeze",
+      "title": "Turn 9: Freeze Response",
+      "text": "Freezing is an instinctive defense mechanism. If you don't start the task, you can't fail at it. Your brain thinks it's protecting you, but it just keeps you stuck.",
+      "type": "message",
+      "branches": [
+        { "text": "Makes sense", "targetId": "node_t10_escape", "isNext": true, "isEnd": false }
+      ]
+    },
+    "node_t9_crash": {
+      "id": "node_t9_crash",
+      "title": "Turn 9: Crash Response",
+      "text": "Running on pure adrenaline only works for a little while. You keep pushing because you're terrified that if you slow down for a second, the whole structure will collapse.",
+      "type": "message",
+      "branches": [
+        { "text": "Makes sense", "targetId": "node_t10_escape", "isNext": true, "isEnd": false }
+      ]
+    },
+    "node_t10_escape": {
+      "id": "node_t10_escape",
+      "title": "Turn 10: High-Stress Resting",
+      "text": "And when you try to escape that cycle by scrolling on screens or hiding in your room, it doesn't actually feel restful, does it? It's high-stress resting. Your hands are busy, but your mind is burning fuel.",
+      "type": "message",
+      "branches": [
+        { "text": "Uncover the root", "targetId": "node_t11_switchboard", "isNext": true, "isEnd": false }
+      ]
+    },
+    "node_t11_switchboard": {
+      "id": "node_t11_switchboard",
+      "title": "Turn 11: Final Selection Switchboard",
+      "text": "Let's strip away the noise. If you had a button right now to magically clear your plate, what would you want saved first?",
+      "type": "message",
+      "branches": [
+        { "text": "Clear the school/social crossfire", "targetId": "node_t12_end_both", "isNext": false, "isEnd": false },
+        { "text": "Just take the academic weight off", "targetId": "node_t12_end_school", "isNext": false, "isEnd": false },
+        { "text": "Just fix the social connection side", "targetId": "node_t12_end_social", "isNext": false, "isEnd": false }
+      ]
+    },
+    "node_t12_end_both": {
+      "id": "node_t12_end_both",
+      "title": "Turn 12: End Crossfire Memory",
+      "text": "We've reached the bottom. It makes sense why you felt running low when we started—fighting a war on two fronts with school performance and social navigation means your survival depends on lowering the stakes. Put down the scripts, close this tab, and take a breath. You don't have to carry it all perfectly today. You're going to be okay.",
+      "type": "end",
+      "branches": []
+    },
+    "node_t12_end_school": {
+      "id": "node_t12_end_school",
+      "title": "Turn 12: End School Memory",
+      "text": "We've reached the bottom. Your social world isn't what's draining you; it's the intense weight you've placed on your academic scores. A single test or grade won't break your future, no matter what the background noise says. Put down the study guides, close this tab, and give yourself a night off. You're going to be okay.",
+      "type": "end",
+      "branches": []
+    },
+    "node_t12_end_social": {
+      "id": "node_t12_end_social",
+      "title": "Turn 12: End Social Memory",
+      "text": "We've reached the bottom. Your school assignments aren't the issue; it's the sheer exhaustion of trying to navigate changing social ties and worrying about fitting in. Stop forcing yourself into boxes to please characters who don't matter. Close this tab, step away from the notifications, and just be yourself. You're going to be okay.",
+      "type": "end",
+      "branches": []
+    }
+  }
+}

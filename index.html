@@ -75,7 +75,7 @@
                 <select id="workflowSelector" onchange="handleWorkflowSelection(this)" class="px-4 py-2 border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-600 font-bold text-sm rounded-full transition-all outline-none cursor-pointer shadow-sm">
                     <option value="" disabled selected>Load/Import File</option>
                     <option value="dinner-chatbot.json">Template: Dinner Chatbot</option>
-                    <option value="eliza_chatbot1.json">Template: EmotiBot</option>
+                    <option value="emoti-chatbot.json">Template: EmotiBot</option>
                     <option value="upload">Upload Custom JSON File...</option>
                 </select>
 
@@ -228,7 +228,8 @@
             panY: 20,
             isDragging: false,
             startX: 0,
-            startY: 0
+            startY: 0,
+	    needsSnap: true
         };
 
         // --- GLOBAL APPARATUS INITIALIZATION SETUP ---
@@ -378,6 +379,7 @@
                 appState.nodes = payload.nodes;
                 appState.activeNodeId = "root";
                 appState.historyStack = [];
+		appState.needsSnap = true; // Snap viewport onto the new file's root node
                 resetZoomPan();
                 renderEditor();
                 renderFlowMap();
@@ -608,10 +610,9 @@
         }
 
         function resetZoomPan() {
-            appState.zoom = 1.0;
-            appState.panX = 20;
-            appState.panY = 20;
-            applyTransformLayoutProperties();
+	    appState.zoom = 1.0;
+            appState.needsSnap = true;
+            renderFlowMap();
         }
 
         // ==========================================
@@ -669,6 +670,24 @@
             const canvas = document.getElementById('flowCanvas');
             canvas.style.width = `${baseWidth}px`;
             canvas.style.height = `${baseHeight}px`;
+
+	    // --- NEW: DYNAMIC VIEWPORT CAMERA SNAPPING CONTROLLER ---
+            if (appState.needsSnap) {
+                const container = document.getElementById('flowMapContainer');
+                if (container && positions["root"]) {
+                    // Calculate exact layout positions matching current configuration definitions
+                    const rootX = positions["root"].order * hGap + 30;
+                    const rootY = positions["root"].depth * vGap + 30;
+                    
+                    // Center horizontally relative to container width, offset by root width
+                    appState.panX = (container.clientWidth / 2) - (rootX + nodeWidth / 2) * appState.zoom;
+                    // Position vertically with a clean 40px padding down from the top edge
+                    appState.panY = 40 - (rootY * appState.zoom);
+                    
+                    appState.needsSnap = false; // Turn off flag until next file load or view reset
+                }
+            }
+
 
             // Draw HTML Node Coordinates Layout
             Object.keys(positions).forEach(nodeId => {
